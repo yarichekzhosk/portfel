@@ -29,7 +29,7 @@ jobs:
           cat > fetch-quotes.mjs <<'EOF'
           import fs from "node:fs";
 
-          const ISS = "https://iss.moex.com/iss";
+          const ISS = "http://iss.moex.com/iss";
           const HOLDINGS = [
             ["VTBR", "TQBR"], ["ASTR", "TQBR"], ["LSRG", "TQBR"], ["IRAO", "TQBR"], ["X5", "TQBR"],
             ["LKOH", "TQBR"], ["MDMG", "TQBR"], ["NVTK", "TQBR"], ["PLZL", "TQBR"], ["RAGR", "TQBR"],
