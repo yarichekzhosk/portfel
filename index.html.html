@@ -1,0 +1,3350 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Портфель">
+<title>Портфель</title>
+<style>
+:root{--bg:#000;--cell:#1c1c1e;--cell2:#2c2c2e;--sep:rgba(84,84,88,.55);--l2:rgba(235,235,245,.6);--l3:rgba(235,235,245,.3);--tint:#0a84ff;--up:#30d158;--down:#ff453a;--warn:#ff9f0a}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:#fff;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Inter,system-ui,sans-serif;font-size:17px;-webkit-font-smoothing:antialiased}
+body.lock{overflow:hidden}
+#app{max-width:560px;margin:0 auto;padding:max(12px,env(safe-area-inset-top)) 16px calc(90px + env(safe-area-inset-bottom))}
+a{color:inherit;text-decoration:none}
+h1{margin:0;font-size:34px;font-weight:700;letter-spacing:-.4px;line-height:1.1}
+.lt{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;padding:20px 0 14px}
+.lt p{margin:4px 0 0;color:var(--l2);font-size:15px;text-transform:capitalize}
+.muted{color:var(--l2)}.sm{font-size:13px}.up{color:var(--up)}.down{color:var(--down)}
+.tn{font-variant-numeric:tabular-nums}
+.ell{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.card{background:var(--cell);border-radius:14px;padding:14px 16px;margin-bottom:12px}
+.card.big .num{font-size:34px;font-weight:700;letter-spacing:-.5px;margin:2px 0}
+.num{font-size:28px;font-weight:700;font-variant-numeric:tabular-nums}
+.gt{color:var(--l2);font-size:13px;text-transform:uppercase;letter-spacing:.3px;margin:20px 16px 6px}
+.grp{background:var(--cell);border-radius:14px;overflow:hidden;margin-bottom:12px}
+.row{display:flex;align-items:center;gap:12px;padding:12px 16px;position:relative}
+.row+.row::before,.kv+.kv::before{content:"";position:absolute;left:68px;right:0;top:0;height:.5px;background:var(--sep)}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:12px 16px;position:relative;font-size:16px}
+.kv+.kv::before{left:16px}
+.kv.col{flex-direction:column;gap:6px}
+.grow{flex:1;min-width:0}
+.r1,.r2{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.r2{margin-top:2px;font-size:13px}
+.nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chev{color:var(--l3);font-size:22px}
+.logo{width:40px;height:40px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex:none}
+.pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600}
+.p-sell{background:rgba(255,69,58,.18);color:var(--down)}.p-buy{background:rgba(48,209,88,.18);color:var(--up)}.p-hold{background:var(--cell2);color:var(--l2)}
+.warn{background:rgba(255,159,10,.14);color:var(--warn);border-radius:12px;padding:10px 14px;font-size:14px;margin-bottom:12px}
+.empty{padding:16px;color:var(--l2);text-align:center;font-size:15px}
+.foot{color:var(--l3);font-size:12px;text-align:center;margin:16px 8px}
+.rb{margin-top:6px}.rb-t{height:4px;border-radius:2px;background:linear-gradient(90deg,var(--up),var(--cell2) 50%,var(--down));position:relative;margin:8px 0}
+.rb-t i{position:absolute;top:-4px;width:12px;height:12px;border-radius:50%;background:#fff;transform:translateX(-50%)}
+.rb-l{display:flex;justify-content:space-between;color:var(--l2);font-size:12px}
+.chart{width:100%;height:auto;margin-top:8px}
+.tabs{display:flex;background:var(--cell2);border-radius:9px;padding:2px;margin-top:12px}
+.tabs button{flex:1;border:0;background:none;color:#fff;font:inherit;font-size:14px;padding:5px;border-radius:7px}
+.tabs button.on{background:#636366}
+.why{margin:0;padding-left:18px;color:var(--l2);font-size:15px;line-height:1.4}.why li{margin:4px 0}
+.back{display:inline-block;color:var(--tint);padding:8px 0}
+.skel{height:90px;border-radius:14px;background:var(--cell);margin-bottom:12px;animation:p 1.2s infinite}
+@keyframes p{50%{opacity:.5}}
+.btns{display:flex;gap:6px;align-items:center}
+.ibtn{border:0;background:none;color:var(--tint);font:inherit;font-size:22px;padding:4px 8px}
+.ibtn.txt{font-size:17px}.ibtn.strong{font-weight:600}
+.ibtn.spin{animation:r 1s linear infinite;display:inline-block}@keyframes r{to{transform:rotate(360deg)}}
+.months{display:grid;grid-template-columns:repeat(6,1fr);gap:4px}
+.months i{font-style:normal;font-size:12px;text-align:center;padding:4px 0;border-radius:6px;background:var(--cell2);color:var(--l3)}
+.months i.on{background:var(--tint);color:#fff;font-weight:600}
+nav{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:center;background:rgba(28,28,30,.88);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:.5px solid var(--sep);padding:6px 0 calc(6px + env(safe-area-inset-bottom));z-index:5}
+nav .in{display:flex;width:100%;max-width:560px}
+.tab{flex:1;text-align:center;color:var(--l3);font-size:10px;padding:4px 0}
+.tab b{display:block;font-size:22px;font-weight:400;line-height:1.2}
+.tab.on{color:var(--tint)}
+#sheet .shade{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:10}
+#sheet .panel{position:fixed;left:0;right:0;bottom:0;top:40px;background:#000;border-radius:14px 14px 0 0;z-index:11;display:flex;flex-direction:column;max-width:560px;margin:0 auto}
+.ph{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-bottom:.5px solid var(--sep)}
+.pb{overflow:auto;padding:8px 16px calc(40px + env(safe-area-inset-bottom))}
+.erow{display:flex;gap:8px;align-items:flex-end;background:var(--cell);border-radius:12px;padding:10px 12px;margin-bottom:8px;flex-wrap:wrap}
+.erow.wrap label{flex:1 1 40%}
+.en{width:100%;font-size:15px}
+.erow label{display:flex;flex-direction:column;font-size:11px;color:var(--l2);gap:2px;flex:1}
+.erow input[type=text],.erow input:not([type]){width:100%;background:var(--cell2);border:0;border-radius:8px;color:#fff;font:inherit;font-size:16px;padding:8px}
+.erow label.chk{flex-direction:row;align-items:center;gap:8px;font-size:14px;color:#fff;flex-basis:100%}
+.del{border:0;background:var(--cell2);color:var(--down);border-radius:8px;width:36px;height:36px;font-size:16px}
+.btn{border:0;background:var(--tint);color:#fff;font:inherit;font-weight:600;border-radius:12px;padding:12px;width:100%;margin-top:6px}
+.btn.danger{background:var(--cell2);color:var(--down);margin-top:20px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<nav><div class="in">
+<a class="tab" data-tab="today" href="#/"><b>◉</b>Сегодня</a>
+<a class="tab" data-tab="portfolio" href="#/portfolio"><b>▤</b>Портфель</a>
+<a class="tab" data-tab="dividends" href="#/dividends"><b>₽</b>Дивиденды</a>
+</div></nav>
+<div id="sheet"></div>
+<script>
+const DIV_DATA = {
+  "asOf": "2026-11-23",
+  "items": {
+    "VTBR": {
+      "name": "Банк ВТБ, обыкновенные акции",
+      "frequency": "обычно 1 раз в год; в 2022–2024 годах выплат не было",
+      "payments": [
+        {
+          "recordDate": "2026-07-20",
+          "amount": 9.71,
+          "period": "2025 год",
+          "lastBuyDate": "2026-07-17"
+        },
+        {
+          "recordDate": "2025-07-11",
+          "amount": 25.58,
+          "period": "2024 год",
+          "lastBuyDate": "2025-07-10"
+        },
+        {
+          "recordDate": "2021-07-15",
+          "amount": 7.0006540894585,
+          "period": "2020 год",
+          "lastBuyDate": "2021-07-13"
+        },
+        {
+          "recordDate": "2020-10-05",
+          "amount": 3.8672668780569,
+          "period": "2019 год",
+          "lastBuyDate": "2020-10-01"
+        },
+        {
+          "recordDate": "2019-06-24",
+          "amount": 5.49338807316295,
+          "period": "2018 год",
+          "lastBuyDate": "2019-06-20"
+        },
+        {
+          "recordDate": "2018-06-04",
+          "amount": 17.2674569487956,
+          "period": "2017 год",
+          "lastBuyDate": "2018-05-31"
+        },
+        {
+          "recordDate": "2017-05-10",
+          "amount": 5.85,
+          "period": "2016 год",
+          "lastBuyDate": "2017-05-04"
+        },
+        {
+          "recordDate": "2016-07-04",
+          "amount": 5.85,
+          "period": "2015 год"
+        },
+        {
+          "recordDate": "2015-07-06",
+          "amount": 5.85,
+          "period": "2014 год"
+        }
+      ],
+      "schedule": [
+        {
+          "label": "Годовой дивиденд",
+          "recordWindow": "середина–конец июля; раньше также май–июнь",
+          "payoutWindow": "конец июля – август",
+          "months": [
+            7
+          ]
+        }
+      ],
+      "next": {
+        "recordDate": "2027-07-20",
+        "amount": 9.31,
+        "status": "прогноз",
+        "comment": "Прогноз УК «ДОХОДЪ» за 2026 год; ни сумма, ни дата не утверждены. Выплата 9,71 руб. с реестром 20.07.2026 уже состоялась."
+      },
+      "policy": "Ориентир госбанка — 50% прибыли по МСФО, но политика допускает, как правило, не менее 25% и зависит от достаточности капитала: за 2025 год в 2026 году распределено только 25%. После паузы 2022–2024 выплаты возобновлены; допэмиссии и требования к капиталу создают риск снижения дивиденда.",
+      "sources": [
+        "https://dohod.ru/ik/analytics/dividend/vtbr",
+        "https://smart-lab.ru/q/VTBR/dividend/",
+        "https://www.vtb.ru/ir/shares/dividends/",
+        "https://investmint.ru/vtbr/divs/"
+      ],
+      "adjustment": "Исторические суммы до июля 2024 умножены на 5000 вследствие консолидации 5000 старых акций в 1 новую; допэмиссии не являются дроблением и здесь не пересчитываются.",
+      "notes": [
+        "Дополнительная строка 0,8834 руб. с реестром 14.11.2019 в Investmint не включена: подтверждения выплаты по обыкновенным акциям в истории эмитента нет. Две строки ДОХОДЪ за 2021 год объединены в единую выплату по точной сумме эмитента."
+      ],
+      "paymentsPerYear": {
+        "2015": 1,
+        "2016": 1,
+        "2017": 1,
+        "2018": 1,
+        "2019": 1,
+        "2020": 1,
+        "2021": 1,
+        "2022": 0,
+        "2023": 0,
+        "2024": 0,
+        "2025": 1,
+        "2026": 1
+      },
+      "historyFrom": "2015-07-06"
+    },
+    "ASTR": {
+      "name": "Группа Астра",
+      "frequency": "по действующей политике 1 раз в год; в 2025 году были 2 выплаты",
+      "payments": [
+        {
+          "recordDate": "2026-06-01",
+          "amount": 4.6765322467,
+          "period": "нераспределённая прибыль прошлых лет (2024 год)",
+          "lastBuyDate": "2026-05-29"
+        },
+        {
+          "recordDate": "2025-07-10",
+          "amount": 3.1475426377,
+          "period": "2024 год",
+          "lastBuyDate": "2025-07-09"
+        },
+        {
+          "recordDate": "2025-01-16",
+          "amount": 2.644669,
+          "period": "9м 2024",
+          "lastBuyDate": "2025-01-15"
+        },
+        {
+          "recordDate": "2024-07-09",
+          "amount": 7.89,
+          "period": "1кв 2024",
+          "lastBuyDate": "2024-07-08"
+        }
+      ],
+      "schedule": [
+        {
+          "label": "Годовой дивиденд по действующей политике",
+          "recordWindow": "начало июня – первая половина июля",
+          "payoutWindow": "вторая половина июня – июль",
+          "months": [
+            6,
+            7
+          ]
+        },
+        {
+          "label": "Историческая промежуточная выплата",
+          "recordWindow": "середина января; единственный прецедент в январе 2025",
+          "payoutWindow": "конец января – февраль",
+          "months": [
+            1
+          ],
+          "historicalOnly": true
+        }
+      ],
+      "next": {
+        "recordDate": "2027-06-01",
+        "amount": 7.51,
+        "status": "прогноз",
+        "comment": "Положительный прогноз УК «ДОХОДЪ» на следующую годовую выплату. Нулевой январский прогноз не является объявленным дивидендом; официального решения на 2027 год не найдено."
+      },
+      "policy": "Действующая политика предусматривает годовые выплаты от скорректированной чистой прибыли минус CAPEX: не менее 25% при ЧД/(скорр. EBITDA минус CAPEX LTM) ≤1х и не менее 15% при ≤2х; выше выплаты зависят от СД либо не рекомендуются. Старый ориентир 50% скорректированной прибыли и квартальные выплаты больше не описывают актуальную политику.",
+      "sources": [
+        "https://dohod.ru/ik/analytics/dividend/astr",
+        "https://smart-lab.ru/q/ASTR/dividend/",
+        "https://astra.ru/investors/dividends/"
+      ],
+      "notes": [
+        "Публичная история начинается в 2024 году после IPO 2023 года; о выплатах до IPO полных данных нет. Выплата 2026 года относится к накопленной прибыли 2024 года, а не к 2025 году, как подписано в некоторых агрегаторах."
+      ],
+      "paymentsPerYear": {
+        "2015": 0,
+        "2016": 0,
+        "2017": 0,
+        "2018": 0,
+        "2019": 0,
+        "2020": 0,
+        "2021": 0,
+        "2022": 0,
+        "2023": 0,
+        "2024": 1,
+        "2025": 2,
+        "2026": 1
+      },
+      "historyFrom": "2024-07-09"
+    },
+    "LSRG": {
+      "name": "Группа ЛСР",
+      "frequency": "обычно 1 раз в год; возможны пропуски и дополнительные выплаты",
+      "payments": [
+        {
+          "recordDate": "2026-07-13",
+          "amount": 78.0,
+          "period": "2025 год",
+          "lastBuyDate": "2026-07-10"
+        },
+        {
+          "recordDate": "2025-04-29",
+          "amount": 78.0,
+          "period": "2024 год",
+          "lastBuyDate": "2025-04-28"
+        },
+        {
+          "recordDate": "2024-05-02",
+          "amount": 100.0,
+          "period": "2023 год",
+          "lastBuyDate": "2024-04-30"
+        },
+        {
+          "recordDate": "2023-07-07",
+          "amount": 78.0,
+          "period": "2022 год",
+          "lastBuyDate": "2023-07-05"
+        },
+        {
+          "recordDate": "2021-05-11",
+          "amount": 39.0,
+          "period": "2020 год",
+          "lastBuyDate": "2021-05-07"
+        },
+        {
+          "recordDate": "2020-10-12",
+          "amount": 20.0,
+          "period": "нераспределённая прибыль прошлых лет",
+          "lastBuyDate": "2020-10-08"
+        },
+        {
+          "recordDate": "2020-05-12",
+          "amount": 30.0,
+          "period": "2019 год",
+          "lastBuyDate": "2020-05-07"
+        },
+        {
+          "recordDate": "2019-07-10",
+          "amount": 78.0,
+          "period": "2018 год",
+          "lastBuyDate": "2019-07-08"
+        },
+        {
+          "recordDate": "2018-07-10",
+          "amount": 78.0,
+          "period": "2017 год",
+          "lastBuyDate": "2018-07-06"
+        },
+        {
+          "recordDate": "2017-06-20",
+          "amount": 78.0,
+          "period": "2016 год",
+          "lastBuyDate": "2017-06-16"
+        },
+        {
+          "recordDate": "2016-04-18",
+          "amount": 78.0,
+          "period": "2015 год"
+        },
+        {
+          "recordDate": "2015-04-18",
+          "amount": 78.0,
+          "period": "2014 год"
+        }
+      ],
+      "schedule": [
+        {
+          "label": "Годовой дивиденд",
+          "recordWindow": "апрель–начало мая либо июнь–середина июля; график менялся",
+          "payoutWindow": "май либо июль–август",
+          "months": [
+            4,
+            5,
+            6,
+            7
+          ]
+        }
+      ],
+      "next": {
+        "recordDate": "2027-07-13",
+        "amount": null,
+        "status": "прогноз",
+        "comment": "Сумма пока не ясна: часть аналитиков не ждёт выплаты, официального решения нет. Последняя выплата — 78 ₽ за 2025 год, реестр 13.07.2026."
+      },
+      "policy": "Размер рекомендует совет директоров с учётом финансовых результатов; в опубликованных прежних условиях ориентиром были не менее 20% чистой прибыли по МСФО, но фиксированный размер 78 руб. не гарантирован. Высокие ставки, спрос на жильё и долговая нагрузка застройщика делают выплаты менее предсказуемыми; в 2022 году дивиденд был пропущен.",
+      "sources": [
+        "https://dohod.ru/ik/analytics/dividend/lsrg",
+        "https://smart-lab.ru/q/LSRG/dividend/",
+        "https://www.finam.ru/publications/item/aktsionery-lsr-odobrili-dividendy-za-2025-god-20260630-1943/"
+      ],
+      "notes": [
+        "В октябре 2020 была отдельная выплата 20 руб. из нераспределённой прибыли; она не является гарантированной второй ежегодной выплатой."
+      ],
+      "paymentsPerYear": {
+        "2015": 1,
+        "2016": 1,
+        "2017": 1,
+        "2018": 1,
+        "2019": 1,
+        "2020": 2,
+        "2021": 1,
+        "2022": 0,
+        "2023": 1,
+        "2024": 1,
+        "2025": 1,
+        "2026": 1
+      },
+      "historyFrom": "2015-04-18"
+    },
+    "IRAO": {
+      "name": "Интер РАО",
+      "frequency": "1 раз в год",
+      "payments": [
+        {
+          "recordDate": "2026-06-09",
+          "amount": 0.321425305785,
+          "period": "2025 год",
+          "lastBuyDate": "2026-06-08"
+        },
+        {
+          "recordDate": "2025-06-09",
+          "amount": 0.353756516888506,
+          "period": "2024 год",
+          "lastBuyDate": "2025-06-06"
+        },
+        {
+          "recordDate": "2024-06-03",
+          "amount": 0.325999263608046,
+          "period": "2023 год",
+          "lastBuyDate": "2024-05-31"
+        },
+        {
+          "recordDate": "2023-05-30",
+          "amount": 0.28365531801897,
+          "period": "2022 год",
+          "lastBuyDate": "2023-05-26"
+        },
+        {
+          "recordDate": "2022-06-10",
+          "amount": 0.23658380041773,
+          "period": "2021 год",
+          "lastBuyDate": "2022-06-08"
+        },
+        {
+          "recordDate": "2021-06-07",
+          "amount": 0.180711206896552,
+          "period": "2020 год",
+          "lastBuyDate": "2021-06-03"
+        },
+        {
+          "recordDate": "2020-06-01",
+          "amount": 0.196192528735633,
+          "period": "2019 год",
+          "lastBuyDate": "2020-05-28"
+        },
+        {
+          "recordDate": "2019-05-31",
+          "amount": 0.171635536398468,
+          "period": "2018 год",
+          "lastBuyDate": "2019-05-29"
+        },
+        {
+          "recordDate": "2018-06-01",
+          "amount": 0.130383141762452,
+          "period": "2017 год",
+          "lastBuyDate": "2018-05-30"
+        },
+        {
+          "recordDate": "2017-06-20",
+          "amount": 0.146819923371648,
+          "period": "2016 год",
+          "lastBuyDate": "2017-06-16"
+        },
+        {
+          "recordDate": "2016-06-21",
+          "amount": 0.0178230516552,
+          "period": "2015 год",
+          "lastBuyDate": "2016-06-17"
+        },
+        {
+          "recordDate": "2015-06-09",
+          "amount": 0.001039679119,
+          "period": "2014 год",
+          "lastBuyDate": "2015-06-05"
+        }
+      ],
+      "schedule": [
+        {
+          "label": "Годовой дивиденд",
+          "recordWindow": "конец мая – первая половина июня; раньше до 20-х чисел июня",
+          "payoutWindow": "середина–конец июня, иногда начало июля",
+          "months": [
+            5,
+            6
+          ]
+        }
+      ],
+      "next": {
+        "recordDate": "2027-06-09",
+        "amount": 0.2913,
+        "status": "прогноз",
+        "comment": "Прогноз УК «ДОХОДЪ» за 2026 год; решение СД/ОСА отсутствует. Последняя выплата 0,321425305785 руб. за 2025 год уже прошла."
+      },
+      "policy": "Ориентир — 25% консолидированной чистой прибыли по МСФО; при ограничениях по российской отчётности учитывается доступная для распределения прибыль. Инвестиционная программа, изменения прибыли и государственные решения могут ограничивать рост выплат.",
+      "sources": [
+        "https://dohod.ru/ik/analytics/dividend/irao",
+        "https://smart-lab.ru/q/IRAO/dividend/",
+        "https://www.interrao.ru/investors/financial-information/dividends/",
+        "https://investmint.ru/irao/"
+      ],
+      "notes": [
+        "Сумма за 2014 год с реестром 09.06.2015 указана как в официальной истории эмитента — 0,001039679119 руб.; автоматически увеличенные некоторыми агрегаторами в 100 раз значения не использованы."
+      ],
+      "paymentsPerYear": {
+        "2015": 1,
+        "2016": 1,
+        "2017": 1,
+        "2018": 1,
+        "2019": 1,
+        "2020": 1,
+        "2021": 1,
+        "2022": 1,
+        "2023": 1,
+        "2024": 1,
+        "2025": 1,
+        "2026": 1
+      },
+      "historyFrom": "2015-06-09"
+    },
+    "X5": {
+      "name": "Корпоративный центр ИКС 5 / X5 Group",
+      "frequency": "по новой политике 2 раза в год; пауза в 2022–2024 годах",
+      "payments": [
+        {
+          "recordDate": "2026-07-07",
+          "amount": 245,
+          "period": "2025 год",
+          "lastBuyDate": "2026-07-06"
+        },
+        {
+          "recordDate": "2026-01-06",
+          "amount": 368,
+          "period": "9м 2025",
+          "lastBuyDate": "2026-01-05"
+        },
+        {
+          "recordDate": "2025-07-09",
+          "amount": 648,
+          "period": "2024 год",
+          "lastBuyDate": "2025-07-08"
+        },
+        {
+          "recordDate": "2021-12-17",
+          "amount": 73.65,
+          "period": "9м 2021",
+          "security": "ГДР X5 Retail Group N.V. (FIVE)",
+          "lastBuyDate": "2021-12-16"
+        },
+        {
+          "recordDate": "2021-05-28",
+          "amount": 110.49,
+          "period": "2020 год",
+          "security": "ГДР X5 Retail Group N.V. (FIVE)",
+          "lastBuyDate": "2021-05-26"
+        },
+        {
+          "recordDate": "2020-12-18",
+          "amount": 73.645,
+          "period": "9м 2020",
+          "security": "ГДР X5 Retail Group N.V. (FIVE)",
+          "lastBuyDate": "2020-12-16"
+        },
+        {
+          "recordDate": "2020-05-29",
+          "amount": 110.47,
+          "period": "2019 год",
+          "security": "ГДР X5 Retail Group N.V. (FIVE)",
+          "lastBuyDate": "2020-05-27"
+        },
+        {
+          "recordDate": "2019-05-24",
+          "amount": 92.06,
+          "period": "2018 год",
+          "security": "ГДР X5 Retail Group N.V. (FIVE)"
+        },
+        {
+          "recordDate": "2018-05-25",
+          "amount": 79.5,
+          "period": "2017 год",
+          "security": "ГДР X5 Retail Group N.V. (FIVE)",
+          "lastBuyDate": "2018-05-23"
+        }
+      ],
+      "schedule": [
+        {
+          "label": "Годовой дивиденд после переезда",
+          "recordWindow": "начало–середина июля; до 2022 года конец мая",
+          "payoutWindow": "конец июля – август",
+          "months": [
+            7
+          ]
+        },
+        {
+          "label": "Промежуточный дивиденд за 9 месяцев",
+          "recordWindow": "декабрь – начало января",
+          "payoutWindow": "конец декабря – январь, иногда начало февраля",
+          "months": [
+            12,
+            1
+          ]
+        }
+      ],
+      "next": {
+        "recordDate": "2026-12-11",
+        "amount": 204,
+        "status": "рекомендован",
+        "comment": "СД 06.11.2026 рекомендовал 204 руб. за 9м 2026; заочное ОСА назначено на 30.11.2026. Последний день покупки по рекомендованному календарю — 10.12.2026.",
+        "lastBuyDate": "2026-12-10",
+        "period": "9м 2026"
+      },
+      "policy": "После выделения российских активов и начала торгов X5 выплаты возобновились в 2025 году; ориентир — два раза в год из свободного денежного потока при целевом ЧД/EBITDA 1,2–1,4х, при >2х выплаты не предусмотрены. Крупные 648 руб. в 2025 году отражали накопленную прибыль и не гарантируют повторения.",
+      "sources": [
+        "https://dohod.ru/ik/analytics/dividend/x5",
+        "https://smart-lab.ru/q/X5/dividend/",
+        "https://www.x5.ru/ru/investors/dividends/",
+        "https://www.x5.ru/en/news/x5-announces-recommended-dividend-distribution-for-9m-2026/"
+      ],
+      "notes": [
+        "До 2022 года выплаты шли на ГДР FIVE; суммы приведены на одну ГДР, экономически сопоставимую с одной новой акцией X5. Дата реестра годовой выплаты 2019 года принята 24.05.2019 по ДОХОДЪ; Smart-Lab показывает 23.05.2019, поэтому эта старая дата требует уточнения у депозитария.",
+        "ДОХОДЪ учитывает январскую выплату 2026 года в 2025 году; paymentsPerYear ниже всегда считается по календарному году реестра."
+      ],
+      "paymentsPerYear": {
+        "2015": 0,
+        "2016": 0,
+        "2017": 0,
+        "2018": 1,
+        "2019": 1,
+        "2020": 2,
+        "2021": 2,
+        "2022": 0,
+        "2023": 0,
+        "2024": 0,
+        "2025": 1,
+        "2026": 2
+      },
+      "historyFrom": "2018-05-25"
+    },
+    "LKOH": {
+      "name": "ЛУКОЙЛ",
+      "frequency": "обычно 2 раза в год",
+      "payments": [
+        {
+          "recordDate": "2026-05-04",
+          "amount": 278.0,
+          "period": "2025 год (окончательная часть)",
+          "lastBuyDate": "2026-04-30"
+        },
+        {
+          "recordDate": "2026-01-12",
+          "amount": 397.0,
+          "period": "9м 2025",
+          "lastBuyDate": "2026-01-09"
+        },
+        {
+          "recordDate": "2025-06-03",
+          "amount": 541.0,
+          "period": "2024 год (окончательная часть)",
+          "lastBuyDate": "2025-06-02"
+        },
+        {
+          "recordDate": "2024-12-17",
+          "amount": 514.0,
+          "period": "9м 2024",
+          "lastBuyDate": "2024-12-16"
+        },
+        {
+          "recordDate": "2024-05-07",
+          "amount": 498.0,
+          "period": "2023 год (окончательная часть)",
+          "lastBuyDate": "2024-05-06"
+        },
+        {
+          "recordDate": "2023-12-17",
+          "amount": 447.0,
+          "period": "9м 2023",
+          "lastBuyDate": "2023-12-14"
+        },
+        {
+          "recordDate": "2023-06-05",
+          "amount": 438.0,
+          "period": "2022 год (окончательная часть)",
+          "lastBuyDate": "2023-06-01"
+        },
+        {
+          "recordDate": "2022-12-21",
+          "amount": 793,
+          "period": "нераспределённая прибыль 2021 года (537 руб.) и 9м 2022 (256 руб.)",
+          "lastBuyDate": "2022-12-19"
+        },
+        {
+          "recordDate": "2021-12-21",
+          "amount": 340.0,
+          "period": "9м 2021",
+          "lastBuyDate": "2021-12-17"
+        },
+        {
+          "recordDate": "2021-07-05",
+          "amount": 213.0,
+          "period": "2020 год (окончательная часть)",
+          "lastBuyDate": "2021-07-01"
+        },
+        {
+          "recordDate": "2020-12-18",
+          "amount": 46.0,
+          "period": "9м 2020",
+          "lastBuyDate": "2020-12-16"
+        },
+        {
+          "recordDate": "2020-07-10",
+          "amount": 350.0,
+          "period": "2019 год (окончательная часть)",
+          "lastBuyDate": "2020-07-08"
+        },
+        {
+          "recordDate": "2019-12-20",
+          "amount": 192.0,
+          "period": "9м 2019",
+          "lastBuyDate": "2019-12-18"
+        },
+        {
+          "recordDate": "2019-07-09",
+          "amount": 155.0,
+          "period": "2018 год (окончательная часть)",
+          "lastBuyDate": "2019-07-05"
+        },
+        {
+          "recordDate": "2018-12-21",
+          "amount": 95.0,
+          "period": "9м 2018",
+          "lastBuyDate": "2018-12-19"
+        },
+        {
+          "recordDate": "2018-07-11",
+          "amount": 130.0,
+          "period": "2017 год (окончательная часть)",
+          "lastBuyDate": "2018-07-09"
+        },
+        {
+          "recordDate": "2017-12-22",
+          "amount": 85.0,
+          "period": "9м 2017",
+          "lastBuyDate": "2017-12-20"
+        },
+        {
+          "recordDate": "2017-07-10",
+          "amount": 120.0,
+          "period": "2016 год (окончательная часть)",
+          "lastBuyDate": "2017-07-06"
+        },
+        {
+          "recordDate": "2016-12-23",
+          "amount": 75.0,
+          "period": "9м 2016"
+        },
+        {
+          "recordDate": "2016-07-12",
+          "amount": 112.0,
+          "period": "2015 год (окончательная часть)"
+        },
+        {
+          "recordDate": "2015-12-24",
+          "amount": 65.0,
+          "period": "9м 2015"
+        },
+        {
+          "recordDate": "2015-07-14",
+          "amount": 94.0,
+          "period": "2014 год (окончательная часть)"
+        }
+      ],
+      "schedule": [
+        {
+          "label": "Окончательный годовой дивиденд",
+          "recordWindow": "май–начало июня; до 2022 года обычно начало–середина июля",
+          "payoutWindow": "конец мая – июнь; при июльском реестре конец июля – август",
+          "months": [
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "label": "Промежуточный дивиденд за 9 месяцев",
+          "recordWindow": "первая–третья декада декабря; иногда середина января",
+          "payoutWindow": "конец декабря – январь; при январском реестре конец января – февраль",
+          "months": [
+            12,
+            1
+          ]
+        }
+      ],
+      "next": {
+        "recordDate": "2026-12-09",
+        "amount": 535,
+        "status": "рекомендован",
+        "comment": "СД 09.10.2026 рекомендовал 535 руб. за 9м 2026, реестр 09.12.2026. Подтверждение итогов назначенного на 20.11.2026 собрания в открытых прочитанных материалах не найдено, поэтому статус консервативно оставлен «рекомендован».",
+        "lastBuyDate": "2026-12-08",
+        "period": "9м 2026"
+      },
+      "policy": "Политика — не менее 100% скорректированного свободного денежного потока и две выплаты в год; для промежуточного расчёта используется поток за полугодие, хотя юридически дивиденд объявляется за 9 месяцев. Санкции, судьба иностранных активов, цены на нефть и дополнительные корректировки FCF существенно влияют на сумму.",
+      "sources": [
+        "https://dohod.ru/ik/analytics/dividend/lkoh",
+        "https://smart-lab.ru/q/LKOH/dividend/",
+        "https://www.lukoil.com/InvestorAndShareholderCenter/Securities/Dividends",
+        "https://www.interfax.ru/business/1121330",
+        "https://investmint.ru/lkoh/divs/"
+      ],
+      "notes": [
+        "21.12.2022 две части общей суммы 793 руб. объединены в одно событие выплаты."
+      ],
+      "paymentsPerYear": {
+        "2015": 2,
+        "2016": 2,
+        "2017": 2,
+        "2018": 2,
+        "2019": 2,
+        "2020": 2,
+        "2021": 2,
+        "2022": 1,
+        "2023": 2,
+        "2024": 2,
+        "2025": 1,
+        "2026": 2
+      },
+      "historyFrom": "2015-07-14"
+    },
+    "MDMG": {
+      "name": "Мать и дитя / МД Медикал Груп",
+      "frequency": "обычно 2 раза в год; в 2024 году 3 выплаты после возобновления",
+      "payments": [
+        {
+          "recordDate": "2026-10-19",
+          "amount": 38,
+          "period": "6м 2026",
+          "lastBuyDate": "2026-10-16"
+        },
+        {
+          "recordDate": "2026-07-14",
+          "amount": 47.0,
+          "period": "2025 год",
+          "lastBuyDate": "2026-07-13"
+        },
+        {
+          "recordDate": "2025-10-20",
+          "amount": 42.0,
+          "period": "6м 2025",
+          "lastBuyDate": "2025-10-17"
+        },
+        {
+          "recordDate": "2025-05-19",
+          "amount": 22.0,
+          "period": "2024 год",
+          "lastBuyDate": "2025-05-16"
+        },
+        {
+          "recordDate": "2024-11-29",
+          "amount": 20.0,
+          "period": "9m 2024",
+          "lastBuyDate": "2024-11-28"
+        },
+        {
+          "recordDate": "2024-09-09",
+          "amount": 22.0,
+          "period": "6м 2024",
+          "lastBuyDate": "2024-09-06"
+        },
+        {
+          "recordDate": "2024-06-20",
+          "amount": 141.0,
+          "period": "3m 2024",
+          "lastBuyDate": "2024-06-19"
+        },
+        {
+          "recordDate": "2022-11-07",
+          "amount": 8.55,
+          "period": "6м 2022",
+          "lastBuyDate": "2022-11-03"
+        },
+        {
+          "recordDate": "2021-09-24",
+          "amount": 18.0,
+          "period": "6м 2021",
+          "lastBuyDate": "2021-09-22"
+        },
+        {
+          "recordDate": "2021-05-05",
+          "amount": 19.0,
+          "period": "2020 год",
+          "lastBuyDate": "2021-05-03"
+        },
+        {
+          "recordDate": "2020-09-18",
+          "amount": 9.8,
+          "period": "6м 2020",
+          "lastBuyDate": "2020-09-16"
+        },
+        {
+          "recordDate": "2020-09-16",
+          "amount": 18.5,
+          "period": "2019 год",
+          "lastBuyDate": "2020-09-14"
+        },
+        {
+          "recordDate": "2019-05-24",
+          "amount": 10.65,
+          "period": "2018 год",
+          "lastBuyDate": "2019-05-22"
+        },
+        {
+          "recordDate": "2018-04-25",
+          "amount": 6.0,
+          "period": "2017 год",
+          "lastBuyDate": "2018-04-23"
+        },
+        {
+          "recordDate": "2017-09-19",
+          "amount": 4.67,
+          "period": "6м 2017",
+          "lastBuyDate": "2017-09-15"
+        },
+        {
+          "recordDate": "2017-04-28",
+          "amount": 4.5,
+          "period": "2016 год",
+          "lastBuyDate": "2017-04-26"
+        },
+        {
+          "recordDate": "2016-09-09",
+          "amount": 3.8,
+          "period": "6м 2016",
+          "lastBuyDate": "2016-09-07"
+        },
+        {
+          "recordDate": "2016-04-22",
+          "amount": 6.66,
+          "period": "2015 год"
+        },
+        {
+          "recordDate": "2015-06-05",
+          "amount": 4.01,
+          "period": "2014 год"
+        },
+        {
+          "recordDate": "2014-05-23",
+          "amount": 2.53,
+          "period": "2013 год"
+        },
+        {
+          "recordDate": "2013-06-07",
+          "amount": 4.02,
+          "period": "2012 год"
+        }
+      ],
+      "schedule": [
+        {
+          "label": "Годовой дивиденд",
+          "recordWindow": "апрель–май исторически; в 2026 году середина июля",
+          "payoutWindow": "май–июнь; по новому июльскому графику конец июля – август",
+          "months": [
+            4,
+            5,
+            7
+          ]
+        },
+        {
+          "label": "Полугодовой дивиденд",
+          "recordWindow": "сентябрь–октябрь; теперь чаще середина–конец октября",
+          "payoutWindow": "октябрь–ноябрь",
+          "months": [
+            9,
+            10
+          ]
+        },
+        {
+          "label": "Дополнительные выплаты после переезда",
+          "recordWindow": "июнь и конец ноября — нерегулярные прецеденты 2024 года",
+          "payoutWindow": "начало июля либо декабрь–январь",
+          "months": [
+            6,
+            11
+          ],
+          "historicalOnly": true
+        }
+      ],
+      "next": {
+        "recordDate": "2027-07-14",
+        "amount": 47,
+        "status": "прогноз",
+        "comment": "Прогноз УК «ДОХОДЪ» на годовую выплату; официального решения нет. За 2026 год уже подтверждены события с реестрами 14.07.2026 (47 руб. за 2025 год) и 19.10.2026 (38 руб. за 6м 2026)."
+      },
+      "policy": "После редомициляции в Россию в 2024 году выплаты возобновились, включая крупную выплату 141 руб. из накопленной прибыли; действующая политика допускает до 100% чистой прибыли по МСФО, в том числе накопленной. Две регулярные выплаты не являются обещанием фиксированной суммы: развитие клиник, приобретения и ликвидность могут уменьшить распределение.",
+      "sources": [
+        "https://dohod.ru/ik/analytics/dividend/mdmg",
+        "https://smart-lab.ru/q/MDMG/dividend/",
+        "https://www.mcclinics.com/investors/dividends/",
+        "https://www.mcclinics.com/media/news/1H2026_Dividends2/"
+      ],
+      "notes": [
+        "Суммы до переезда относятся к ГДР MD Medical Group Investments Plc; приводятся в рублях по официальной исторической таблице эмитента.",
+        "Таблица ДОХОДЪ на дату проверки не отражает положительные выплаты 2026 года; использованы официальная история и сообщение за 6м 2026."
+      ],
+      "paymentsPerYear": {
+        "2015": 1,
+        "2016": 2,
+        "2017": 2,
+        "2018": 1,
+        "2019": 1,
+        "2020": 2,
+        "2021": 2,
+        "2022": 1,
+        "2023": 0,
+        "2024": 3,
+        "2025": 2,
+        "2026": 2
+      },
+      "historyFrom": "2013-06-07"
+    },
+    "NVTK": {
+      "name": "НОВАТЭК",
+      "frequency": "2 раза в год",
+      "payments": [
+        {
+          "recordDate": "2026-10-12",
+          "amount": 35.5,
+          "period": "6м 2026",
+          "lastBuyDate": "2026-10-09"
+        },
+        {
+          "recordDate": "2026-04-13",
+          "amount": 47.23,
+          "period": "2025 год (окончательная часть)",
+          "lastBuyDate": "2026-04-10"
+        },
+        {
+          "recordDate": "2025-10-06",
+          "amount": 35.5,
+          "period": "6м 2025",
+          "lastBuyDate": "2025-10-03"
+        },
+        {
+          "recordDate": "2025-04-28",
+          "amount": 46.65,
+          "period": "2024 год (окончательная часть)",
+          "lastBuyDate": "2025-04-25"
+        },
+        {
+          "recordDate": "2024-10-11",
+          "amount": 35.5,
+          "period": "6м 2024",
+          "lastBuyDate": "2024-10-10"
+        },
+        {
+          "recordDate": "2024-03-26",
+          "amount": 44.09,
+          "period": "2023 год (окончательная часть)",
+          "lastBuyDate": "2024-03-25"
+        },
+        {
+          "recordDate": "2023-10-10",
+          "amount": 34.5,
+          "period": "6м 2023",
+          "lastBuyDate": "2023-10-09"
+        },
+        {
+          "recordDate": "2023-05-03",
+          "amount": 60.58,
+          "period": "2022 год (окончательная часть)",
+          "lastBuyDate": "2023-04-28"
+        },
+        {
+          "recordDate": "2022-10-09",
+          "amount": 45.0,
+          "period": "6м 2022",
+          "lastBuyDate": "2022-10-05"
+        },
+        {
+          "recordDate": "2022-05-05",
+          "amount": 43.77,
+          "period": "2021 год (окончательная часть)",
+          "lastBuyDate": "2022-05-03"
+        },
+        {
+          "recordDate": "2021-10-11",
+          "amount": 27.67,
+          "period": "6м 2021",
+          "lastBuyDate": "2021-10-07"
+        },
+        {
+          "recordDate": "2021-05-07",
+          "amount": 23.74,
+          "period": "2020 год (окончательная часть)",
+          "lastBuyDate": "2021-05-05"
+        },
+        {
+          "recordDate": "2020-10-12",
+          "amount": 11.82,
+          "period": "6м 2020",
+          "lastBuyDate": "2020-10-08"
+        },
+        {
+          "recordDate": "2020-05-08",
+          "amount": 18.1,
+          "period": "2019 год (окончательная часть)",
+          "lastBuyDate": "2020-05-06"
+        },
+        {
+          "recordDate": "2019-10-10",
+          "amount": 14.23,
+          "period": "6м 2019",
+          "lastBuyDate": "2019-10-08"
+        },
+        {
+          "recordDate": "2019-05-06",
+          "amount": 16.81,
+          "period": "2018 год (окончательная часть)",
+          "lastBuyDate": "2019-05-02"
+        },
+        {
+          "recordDate": "2018-10-10",
+          "amount": 9.25,
+          "period": "6м 2018",
+          "lastBuyDate": "2018-10-08"
+        },
+        {
+          "recordDate": "2018-05-03",
+          "amount": 8.0,
+          "period": "2017 год (окончательная часть)",
+          "lastBuyDate": "2018-04-30"
+        },
+        {
+          "recordDate": "2017-10-10",
+          "amount": 6.95,
+          "period": "6м 2017",
+          "lastBuyDate": "2017-10-06"
+        },
+        {
+          "recordDate": "2017-05-02",
+          "amount": 7.0,
+          "period": "2016 год (окончательная часть)",
+          "lastBuyDate": "2017-04-27"
+        },
+        {
+          "recordDate": "2016-10-11",
+          "amount": 6.9,
+          "period": "6м 2016"
+        },
+        {
+          "recordDate": "2016-05-04",
+          "amount": 6.9,
+          "period": "2015 год (окончательная часть)"
+        },
+        {
+          "recordDate": "2015-10-06",
+          "amount": 6.6,
+          "period": "6м 2015"
+        },
+        {
+          "recordDate": "2015-05-05",
+          "amount": 5.2,
+          "period": "2014 год (окончательная часть)"
+        }
+      ],
+      "schedule": [
+        {
+          "label": "Окончательный годовой дивиденд",
+          "recordWindow": "конец марта – апрель; раньше начало мая",
+          "payoutWindow": "апрель – май; при майском реестре вторая половина мая",
+          "months": [
+            3,
+            4,
+            5
+          ]
+        },
+        {
+          "label": "Полугодовой дивиденд",
+          "recordWindow": "первая половина октября",
+          "payoutWindow": "вторая половина октября – начало ноября",
+          "months": [
+            10
+          ]
+        }
+      ],
+      "next": {
+        "recordDate": "2027-04-13",
+        "amount": 41.56,
+        "status": "прогноз",
+        "comment": "Прогноз УК «ДОХОДЪ» на окончательную часть за 2026 год; сумма и дата не утверждены. 35,50 руб. за 6м 2026 с реестром 12.10.2026 — уже прошлое событие."
+      },
+      "policy": "Ориентир — не менее 50% консолидированной прибыли по МСФО, скорректированной на разовые и неденежные статьи, двумя выплатами в год. Ограничения СПГ-проектов, санкции и крупные капитальные затраты способны снизить прибыль и выплаты; СД вправе рекомендовать иной размер или отказ.",
+      "sources": [
+        "https://dohod.ru/ik/analytics/dividend/nvtk",
+        "https://smart-lab.ru/q/NVTK/dividend/",
+        "https://www.novatek.ru/ru/investors/dividends/",
+        "https://investmint.ru/nvtk/"
+      ],
+      "notes": [
+        "Полугодовые выплаты, подписанные агрегатором «2кв», обозначены как 6м; окончательные годовые выплаты не дублируют ранее выплаченные промежуточные."
+      ],
+      "paymentsPerYear": {
+        "2015": 2,
+        "2016": 2,
+        "2017": 2,
+        "2018": 2,
+        "2019": 2,
+        "2020": 2,
+        "2021": 2,
+        "2022": 2,
+        "2023": 2,
+        "2024": 2,
+        "2025": 2,
+        "2026": 2
+      },
+      "historyFrom": "2015-05-05"
+    },
+    "PLZL": {
+      "name": "Полюс",
+      "frequency": "исторически 2 раза в год, в 2025 году 3; после июля 2026 ожидается пауза",
+      "payments": [
+        {
+          "recordDate": "2026-07-13",
+          "amount": 29.05,
+          "period": "1кв 2026",
+          "lastBuyDate": "2026-07-10"
+        },
+        {
+          "recordDate": "2026-05-18",
+          "amount": 56.8,
+          "period": "2025 год",
+          "lastBuyDate": "2026-05-15"
+        },
+        {
+          "recordDate": "2025-12-22",
+          "amount": 36,
+          "period": "9м 2025",
+          "lastBuyDate": "2025-12-19"
+        },
+        {
+          "recordDate": "2025-10-13",
+          "amount": 70.85,
+          "period": "6м 2025",
+          "lastBuyDate": "2025-10-10"
+        },
+        {
+          "recordDate": "2025-04-25",
+          "amount": 73,
+          "period": "2024 год (окончательная часть за 4кв)",
+          "lastBuyDate": "2025-04-24"
+        },
+        {
+          "recordDate": "2024-12-13",
+          "amount": 130.175,
+          "period": "9м 2024 (с учётом результатов 4кв 2023)",
+          "lastBuyDate": "2024-12-12"
+        },
+        {
+          "recordDate": "2021-10-11",
+          "amount": 26.748,
+          "period": "6м 2021",
+          "lastBuyDate": "2021-10-07"
+        },
+        {
+          "recordDate": "2021-06-07",
+          "amount": 38.715,
+          "period": "2020 год",
+          "lastBuyDate": "2021-06-03"
+        },
+        {
+          "recordDate": "2020-10-20",
+          "amount": 24.018,
+          "period": "6м 2020",
+          "lastBuyDate": "2020-10-16"
+        },
+        {
+          "recordDate": "2020-08-28",
+          "amount": 24.475,
+          "period": "2019 год",
+          "lastBuyDate": "2020-08-26"
+        },
+        {
+          "recordDate": "2019-10-10",
+          "amount": 16.298,
+          "period": "6м 2019",
+          "lastBuyDate": "2019-10-08"
+        },
+        {
+          "recordDate": "2019-05-16",
+          "amount": 14.362,
+          "period": "2018 год",
+          "lastBuyDate": "2019-05-14"
+        },
+        {
+          "recordDate": "2018-10-18",
+          "amount": 13.111,
+          "period": "6м 2018",
+          "lastBuyDate": "2018-10-16"
+        },
+        {
+          "recordDate": "2018-06-10",
+          "amount": 14.712,
+          "period": "2017 год",
+          "lastBuyDate": "2018-06-06"
+        },
+        {
+          "recordDate": "2017-09-25",
+          "amount": 10.43,
+          "period": "6м 2017",
+          "lastBuyDate": "2017-09-21"
+        },
+        {
+          "recordDate": "2017-07-17",
+          "amount": 15.241,
+          "period": "2016 год",
+          "lastBuyDate": "2017-07-13"
+        }
+      ],
+      "schedule": [
+        {
+          "label": "Годовой дивиденд — исторический график",
+          "recordWindow": "апрель–июнь, иногда июль–август",
+          "payoutWindow": "май–июль; при летнем реестре август–сентябрь",
+          "months": [
+            4,
+            5,
+            6,
+            7,
+            8
+          ],
+          "historicalOnly": true
+        },
+        {
+          "label": "Полугодовой дивиденд — исторический график",
+          "recordWindow": "конец сентября – октябрь",
+          "payoutWindow": "октябрь–ноябрь",
+          "months": [
+            9,
+            10
+          ],
+          "historicalOnly": true
+        },
+        {
+          "label": "Дополнительные выплаты — отдельные прецеденты",
+          "recordWindow": "июль или декабрь, не гарантированный график",
+          "payoutWindow": "конец июля – август либо конец декабря – январь",
+          "months": [
+            7,
+            12
+          ],
+          "historicalOnly": true
+        }
+      ],
+      "next": {
+        "recordDate": null,
+        "amount": null,
+        "status": "не ожидается",
+        "comment": "08.07.2026 менеджмент объявил намерение рекомендовать СД приостановить дивиденды до 2030 года для финансирования крупных инвестиций. Это намерение менеджмента, а не уже принятое ОСА обязательство; новых положительных рекомендаций не найдено."
+      },
+      "policy": "Действующая политика сохраняет целевой ориентир 30% EBITDA и не реже двух выплат в год, но учитывает CAPEX, FCF, долг и доступность финансирования. В июле 2026 менеджмент объявил намерение рекомендовать паузу до 2030 года, поэтому исторический график сейчас нельзя считать ожидаемым.",
+      "sources": [
+        "https://dohod.ru/ik/analytics/dividend/plzl",
+        "https://smart-lab.ru/q/PLZL/dividend/",
+        "https://polyus.com/en/investors/shares/dividends/",
+        "https://polyus.com/en/investors/shares/stock-split/",
+        "https://polyus.com/en/media/press-releases/dividend-payments-update/"
+      ],
+      "adjustment": "Все суммы указаны на одну текущую акцию после дробления 1:10 в марте 2025: фактические дивиденды до дробления разделены на 10; например 1301,75 руб. стало 130,175 руб. Допэмиссии/выкупы не являются дроблением.",
+      "notes": [
+        "436,79 руб. за 2022 год (реестр предполагался 16.06.2023) были только рекомендацией; ОСА решило не объявлять и не платить дивиденд. Эта строка из Smart-Lab исключена из истории. В 2022–2023 годах состоявшихся выплат нет."
+      ],
+      "paymentsPerYear": {
+        "2015": 0,
+        "2016": 0,
+        "2017": 2,
+        "2018": 2,
+        "2019": 2,
+        "2020": 2,
+        "2021": 2,
+        "2022": 0,
+        "2023": 0,
+        "2024": 1,
+        "2025": 3,
+        "2026": 2
+      },
+      "historyFrom": "2017-07-17"
+    },
+    "RAGR": {
+      "name": "Группа РусАгро",
+      "frequency": "раньше 2 раза в год; пауза 2022–2025, одна возобновлённая выплата в 2026",
+      "payments": [
+        {
+          "recordDate": "2026-08-06",
+          "amount": 16.48,
+          "period": "нераспределённая прибыль прошлых лет",
+          "lastBuyDate": "2026-08-05"
+        },
+        {
+          "recordDate": "2021-09-10",
+          "amount": 9.33913167,
+          "period": "6м 2021",
+          "amountIsApproximate": true,
+          "originalAmountPerGDR": 65.5,
+          "security": "историческая ГДР ROS AGRO PLC (AGRO), экономический пересчёт на RAGR",
+          "uncertain": true
+        },
+        {
+          "recordDate": "2021-04-16",
+          "amount": 10.89898054,
+          "period": "2020 год",
+          "amountIsApproximate": true,
+          "originalAmountPerGDR": 76.44,
+          "security": "историческая ГДР ROS AGRO PLC (AGRO), экономический пересчёт на RAGR",
+          "uncertain": true
+        },
+        {
+          "recordDate": "2020-09-18",
+          "amount": 1.98189207,
+          "period": "6м 2020",
+          "amountIsApproximate": true,
+          "originalAmountPerGDR": 13.9,
+          "security": "историческая ГДР ROS AGRO PLC (AGRO), экономический пересчёт на RAGR",
+          "uncertain": true
+        },
+        {
+          "recordDate": "2020-04-17",
+          "amount": 3.01989021,
+          "period": "2019 год",
+          "amountIsApproximate": true,
+          "originalAmountPerGDR": 21.18,
+          "security": "историческая ГДР ROS AGRO PLC (AGRO), экономический пересчёт на RAGR",
+          "uncertain": true
+        },
+        {
+          "recordDate": "2019-09-13",
+          "amount": 1.78227704,
+          "period": "6м 2019",
+          "amountIsApproximate": true,
+          "originalAmountPerGDR": 12.5,
+          "security": "историческая ГДР ROS AGRO PLC (AGRO), экономический пересчёт на RAGR",
+          "uncertain": true
+        },
+        {
+          "recordDate": "2019-04-26",
+          "amount": 3.59877379,
+          "period": "2018 год",
+          "amountIsApproximate": true,
+          "originalAmountPerGDR": 25.24,
+          "security": "историческая ГДР ROS AGRO PLC (AGRO), экономический пересчёт на RAGR",
+          "uncertain": true
+        },
+        {
+          "recordDate": "2018-09-14",
+          "amount": 1.0879019,
+          "period": "6м 2018",
+          "amountIsApproximate": true,
+          "originalAmountPerGDR": 7.63,
+          "security": "историческая ГДР ROS AGRO PLC (AGRO), экономический пересчёт на RAGR",
+          "uncertain": true
+        },
+        {
+          "recordDate": "2018-04-12",
+          "amount": 2.31981179,
+          "period": "2017 год",
+          "amountIsApproximate": true,
+          "originalAmountPerGDR": 16.27,
+          "security": "историческая ГДР ROS AGRO PLC (AGRO), экономический пересчёт на RAGR",
+          "uncertain": true
+        },
+        {
+          "recordDate": "2017-09-14",
+          "amount": 1.97333714,
+          "period": "6м 2017",
+          "amountIsApproximate": true,
+          "originalAmountPerGDR": 13.84,
+          "security": "историческая ГДР ROS AGRO PLC (AGRO), экономический пересчёт на RAGR",
+          "uncertain": true
+        },
+        {
+          "recordDate": "2017-04-13",
+          "amount": 4.8976973,
+          "period": "2016 год",
+          "amountIsApproximate": true,
+          "originalAmountPerGDR": 34.35,
+          "security": "историческая ГДР ROS AGRO PLC (AGRO), экономический пересчёт на RAGR",
+          "uncertain": true
+        },
+        {
+          "recordDate": "2016-09-23",
+          "amount": 2.12590005,
+          "period": "6м 2016",
+          "amountIsApproximate": true,
+          "originalAmountPerGDR": 14.91,
+          "security": "историческая ГДР ROS AGRO PLC (AGRO), экономический пересчёт на RAGR",
+          "uncertain": true
+        },
+        {
+          "recordDate": "2016-05-27",
+          "amount": 5.65908605,
+          "period": "2015 год",
+          "amountIsApproximate": true,
+          "originalAmountPerGDR": 39.69,
+          "security": "историческая ГДР ROS AGRO PLC (AGRO), экономический пересчёт на RAGR",
+          "uncertain": true
+        },
+        {
+          "recordDate": "2015-10-02",
+          "amount": 2.18008127,
+          "period": "6м 2015",
+          "amountIsApproximate": true,
+          "originalAmountPerGDR": 15.29,
+          "security": "историческая ГДР ROS AGRO PLC (AGRO), экономический пересчёт на RAGR",
+          "uncertain": true
+        },
+        {
+          "recordDate": "2015-05-22",
+          "amount": 3.41,
+          "period": "2014 год",
+          "amountIsApproximate": true,
+          "comment": "Рублёвый эквивалент на текущую акцию по ДОХОДЪ; исходная долларовая выплата и курс требуют уточнения.",
+          "uncertain": true
+        }
+      ],
+      "schedule": [
+        {
+          "label": "Исторический годовой дивиденд",
+          "recordWindow": "апрель–май до приостановки; в 2026 году разовый реестр в начале августа",
+          "payoutWindow": "май–июнь; для августовской выплаты август–сентябрь",
+          "months": [
+            4,
+            5,
+            8
+          ],
+          "historicalOnly": true
+        },
+        {
+          "label": "Исторический полугодовой дивиденд",
+          "recordWindow": "сентябрь – начало октября",
+          "payoutWindow": "конец сентября – октябрь",
+          "months": [
+            9,
+            10
+          ],
+          "historicalOnly": true
+        }
+      ],
+      "next": {
+        "recordDate": "2027-08-06",
+        "amount": 11.8,
+        "status": "прогноз",
+        "comment": "Модель УК «ДОХОДЪ» ожидает 11,80 руб., но ни регулярный график после возобновления, ни эта сумма/дата эмитентом не подтверждены. Последняя выплата — 16,48 руб. из накопленной прибыли, реестр 06.08.2026."
+      },
+      "policy": "После паузы с 2022 года и уголовного дела основателя в 2025 году компания в 2026 году возобновила выплаты: 16,48 руб. из накопленной прибыли. Минимальная доля прибыли в новой редакции политики 2025 года не закреплена по прочитанному описанию; судебные споры об акциях, смена контроля и долг делают будущие выплаты особенно неопределёнными.",
+      "sources": [
+        "https://dohod.ru/ik/analytics/dividend/ragr",
+        "https://smart-lab.ru/q/RAGR/dividend/",
+        "https://www.rusagrogroup.ru/ru/investoram/novosti-i-sobytija/press-relizy/edinoe-predstavlenie/article/1449/",
+        "https://www.rbc.ru/quote/news/article/67b2c1f49a7947bff23b689a",
+        "https://investmint.ru/ragr/",
+        "https://www.kommersant.ru/doc/8844203"
+      ],
+      "adjustment": "До 2025 года это выплаты по ГДР ROS AGRO PLC (AGRO), а не по акции ПАО RAGR. Для сопоставимости рублёвые эквиваленты на 1 ГДР разделены на коэффициент обмена 7,0135; это экономический пересчёт, не фактический исторический дивиденд на RAGR.",
+      "notes": [
+        "Старые выплаты объявлялись в иностранной валюте; рублёвый эквивалент зависит от курса/даты конвертации и комиссии депозитария. Числа до 2025 года приблизительные; originalAmountPerGDR сохраняет рублёвую оценку Smart-Lab до пересчёта.",
+        "Для старых ГДР источники расходятся в датах: например за 2018 год Smart-Lab показывает 26.04.2019, ДОХОДЪ — 01.05.2019. Приняты даты исторической таблицы Smart-Lab, но точные реестры таких строк требуют подтверждения старым депозитарным уведомлением."
+      ],
+      "paymentsPerYear": {
+        "2015": 2,
+        "2016": 2,
+        "2017": 2,
+        "2018": 2,
+        "2019": 2,
+        "2020": 2,
+        "2021": 2,
+        "2022": 0,
+        "2023": 0,
+        "2024": 0,
+        "2025": 0,
+        "2026": 1
+      },
+      "historyFrom": "2015-05-22"
+    },
+    "SBER": {
+      "name": "Сбербанк, обыкновенные акции",
+      "frequency": "1 раз в год; в 2022 году выплаты не было",
+      "payments": [
+        {
+          "recordDate": "2026-07-20",
+          "amount": 37.64,
+          "period": "2025 год",
+          "lastBuyDate": "2026-07-17"
+        },
+        {
+          "recordDate": "2025-07-18",
+          "amount": 34.84,
+          "period": "2024 год",
+          "lastBuyDate": "2025-07-17"
+        },
+        {
+          "recordDate": "2024-07-11",
+          "amount": 33.3,
+          "period": "2023 год",
+          "lastBuyDate": "2024-07-10"
+        },
+        {
+          "recordDate": "2023-05-11",
+          "amount": 25.0,
+          "period": "2022 год",
+          "lastBuyDate": "2023-05-08"
+        },
+        {
+          "recordDate": "2021-05-12",
+          "amount": 18.7,
+          "period": "2020 год",
+          "lastBuyDate": "2021-05-10"
+        },
+        {
+          "recordDate": "2020-10-05",
+          "amount": 18.7,
+          "period": "2019 год",
+          "lastBuyDate": "2020-10-01"
+        },
+        {
+          "recordDate": "2019-06-13",
+          "amount": 16.0,
+          "period": "2018 год",
+          "lastBuyDate": "2019-06-10"
+        },
+        {
+          "recordDate": "2018-06-26",
+          "amount": 12.0,
+          "period": "2017 год",
+          "lastBuyDate": "2018-06-22"
+        },
+        {
+          "recordDate": "2017-06-14",
+          "amount": 6.0,
+          "period": "2016 год",
+          "lastBuyDate": "2017-06-09"
+        },
+        {
+          "recordDate": "2016-06-14",
+          "amount": 1.97,
+          "period": "2015 год"
+        },
+        {
+          "recordDate": "2015-06-15",
+          "amount": 0.45,
+          "period": "2014 год"
+        }
+      ],
+      "schedule": [
+        {
+          "label": "Годовой дивиденд — современный график",
+          "recordWindow": "середина–конец июля; до 2024 года часто май–июнь",
+          "payoutWindow": "конец июля – август",
+          "months": [
+            7
+          ]
+        }
+      ],
+      "next": {
+        "recordDate": "2027-07-20",
+        "amount": 44.68,
+        "status": "прогноз",
+        "comment": "Прогноз УК «ДОХОДЪ» за 2026 год, не рекомендация и не утверждённый дивиденд. 37,64 руб. за 2025 год с реестром 20.07.2026 уже выплачены."
+      },
+      "policy": "Политика 2024–2026 — 50% скорректированной чистой прибыли группы по МСФО при достаточности общего капитала по РПБУ не ниже 13,3% и соблюдении нормативов. Обыкновенные акции и префы получают одинаковую сумму; итоговый размер за 2026 год и продолжение политики требуют решения органов банка.",
+      "sources": [
+        "https://dohod.ru/ik/analytics/dividend/sber",
+        "https://smart-lab.ru/q/SBER/dividend/",
+        "https://www.sberbank.com/ru/investor-relations/dividends"
+      ],
+      "notes": [
+        "Исторический реестр 05.10.2020 был переносом годовой выплаты, а не регулярным осенним дивидендом."
+      ],
+      "paymentsPerYear": {
+        "2015": 1,
+        "2016": 1,
+        "2017": 1,
+        "2018": 1,
+        "2019": 1,
+        "2020": 1,
+        "2021": 1,
+        "2022": 0,
+        "2023": 1,
+        "2024": 1,
+        "2025": 1,
+        "2026": 1
+      },
+      "historyFrom": "2015-06-15"
+    },
+    "TATNP": {
+      "name": "Татнефть, привилегированные акции",
+      "frequency": "обычно 3 раза в год; в отдельные годы 1–2 или 4 календарных отсечки",
+      "payments": [
+        {
+          "recordDate": "2026-10-13",
+          "amount": 32.88,
+          "period": "6м 2026",
+          "lastBuyDate": "2026-10-12"
+        },
+        {
+          "recordDate": "2026-07-15",
+          "amount": 11.61,
+          "period": "2025 год (окончательная часть)",
+          "lastBuyDate": "2026-07-14"
+        },
+        {
+          "recordDate": "2026-01-11",
+          "amount": 8.13,
+          "period": "9м 2025 (доплата к полугодию)",
+          "lastBuyDate": "2026-01-08"
+        },
+        {
+          "recordDate": "2025-10-14",
+          "amount": 14.35,
+          "period": "6м 2025",
+          "lastBuyDate": "2025-10-13"
+        },
+        {
+          "recordDate": "2025-06-02",
+          "amount": 43.11,
+          "period": "2024 год (окончательная часть)",
+          "lastBuyDate": "2025-05-30"
+        },
+        {
+          "recordDate": "2025-01-08",
+          "amount": 17.39,
+          "period": "9м 2024 (доплата к полугодию)",
+          "lastBuyDate": "2025-01-07"
+        },
+        {
+          "recordDate": "2024-10-08",
+          "amount": 38.2,
+          "period": "6м 2024",
+          "lastBuyDate": "2024-10-07"
+        },
+        {
+          "recordDate": "2024-07-09",
+          "amount": 25.17,
+          "period": "2023 год (окончательная часть)",
+          "lastBuyDate": "2024-07-08"
+        },
+        {
+          "recordDate": "2024-01-09",
+          "amount": 35.17,
+          "period": "9м 2023 (доплата к полугодию)",
+          "lastBuyDate": "2024-01-08"
+        },
+        {
+          "recordDate": "2023-10-11",
+          "amount": 27.54,
+          "period": "6м 2023",
+          "lastBuyDate": "2023-10-10"
+        },
+        {
+          "recordDate": "2023-07-11",
+          "amount": 27.71,
+          "period": "2022 год (окончательная часть)",
+          "lastBuyDate": "2023-07-07"
+        },
+        {
+          "recordDate": "2023-01-10",
+          "amount": 6.86,
+          "period": "9м 2022 (доплата к полугодию)",
+          "lastBuyDate": "2023-01-06"
+        },
+        {
+          "recordDate": "2022-10-11",
+          "amount": 32.71,
+          "period": "6м 2022",
+          "lastBuyDate": "2022-10-07"
+        },
+        {
+          "recordDate": "2022-07-08",
+          "amount": 16.14,
+          "period": "2021 год (окончательная часть)",
+          "lastBuyDate": "2022-07-06"
+        },
+        {
+          "recordDate": "2022-01-10",
+          "amount": 9.98,
+          "period": "9м 2021 (доплата к полугодию)",
+          "lastBuyDate": "2022-01-05"
+        },
+        {
+          "recordDate": "2021-10-12",
+          "amount": 16.52,
+          "period": "6м 2021",
+          "lastBuyDate": "2021-10-08"
+        },
+        {
+          "recordDate": "2021-07-09",
+          "amount": 12.3,
+          "period": "2020 год (окончательная часть)",
+          "lastBuyDate": "2021-07-07"
+        },
+        {
+          "recordDate": "2020-10-12",
+          "amount": 9.94,
+          "period": "6м 2020",
+          "lastBuyDate": "2020-10-08"
+        },
+        {
+          "recordDate": "2020-06-30",
+          "amount": 1.0,
+          "period": "2019 год (окончательная часть)",
+          "lastBuyDate": "2020-06-26"
+        },
+        {
+          "recordDate": "2019-12-30",
+          "amount": 24.36,
+          "period": "9м 2019 (доплата к полугодию)",
+          "lastBuyDate": "2019-12-26"
+        },
+        {
+          "recordDate": "2019-09-27",
+          "amount": 40.11,
+          "period": "6м 2019",
+          "lastBuyDate": "2019-09-25"
+        },
+        {
+          "recordDate": "2019-07-05",
+          "amount": 32.38,
+          "period": "2018 год (окончательная часть)",
+          "lastBuyDate": "2019-07-03"
+        },
+        {
+          "recordDate": "2019-01-09",
+          "amount": 22.26,
+          "period": "9м 2018 (доплата к полугодию)",
+          "lastBuyDate": "2019-01-04"
+        },
+        {
+          "recordDate": "2018-10-12",
+          "amount": 30.27,
+          "period": "6м 2018",
+          "lastBuyDate": "2018-10-10"
+        },
+        {
+          "recordDate": "2018-07-06",
+          "amount": 12.16,
+          "period": "2017 год (окончательная часть)",
+          "lastBuyDate": "2018-07-04"
+        },
+        {
+          "recordDate": "2017-12-23",
+          "amount": 27.78,
+          "period": "9м 2017 (доплата к полугодию)",
+          "lastBuyDate": "2017-12-20"
+        },
+        {
+          "recordDate": "2017-07-07",
+          "amount": 22.81,
+          "period": "2016 год (окончательная часть)",
+          "lastBuyDate": "2017-07-05"
+        },
+        {
+          "recordDate": "2016-07-08",
+          "amount": 10.96,
+          "period": "2015 год (окончательная часть)"
+        },
+        {
+          "recordDate": "2015-07-15",
+          "amount": 10.58,
+          "period": "2014 год (окончательная часть)"
+        }
+      ],
+      "schedule": [
+        {
+          "label": "Окончательный годовой дивиденд",
+          "recordWindow": "июнь–середина июля; чаще первая–вторая декада июля",
+          "payoutWindow": "конец июня – август",
+          "months": [
+            6,
+            7
+          ]
+        },
+        {
+          "label": "Полугодовой дивиденд",
+          "recordWindow": "конец сентября – первая половина октября",
+          "payoutWindow": "октябрь – начало ноября",
+          "months": [
+            9,
+            10
+          ]
+        },
+        {
+          "label": "Доплата за 9 месяцев",
+          "recordWindow": "начало января; иногда конец декабря",
+          "payoutWindow": "конец января – февраль; при декабрьском реестре январь",
+          "months": [
+            1,
+            12
+          ]
+        }
+      ],
+      "next": {
+        "recordDate": "2027-01-11",
+        "amount": 19.99,
+        "status": "прогноз",
+        "comment": "Прогноз УК «ДОХОДЪ» на доплату за 9м 2026; положительной официальной рекомендации с суммой и датой в прочитанных источниках не найдено."
+      },
+      "policy": "Цель — не менее 50% большей из чистой прибыли по РСБУ и МСФО; обычно выплаты по обыкновенным акциям и префам одинаковы. Уставный фиксированный дивиденд по префам — 1 руб. при отсутствии иного решения; нефтяные цены, налоги, курс и инвестиции способны уменьшать распределение.",
+      "sources": [
+        "https://dohod.ru/ik/analytics/dividend/tatnp",
+        "https://smart-lab.ru/q/TATN/dividend/"
+      ],
+      "notes": [
+        "Три выплаты за финансовый год могут попадать в разные календарные годы; в 2019 году четыре отсечки из-за переноса декабрьской/январской выплаты. В 2020 году окончательная выплата только по префам составила 1 руб."
+      ],
+      "paymentsPerYear": {
+        "2015": 1,
+        "2016": 1,
+        "2017": 2,
+        "2018": 2,
+        "2019": 4,
+        "2020": 2,
+        "2021": 2,
+        "2022": 3,
+        "2023": 3,
+        "2024": 3,
+        "2025": 3,
+        "2026": 3
+      },
+      "historyFrom": "2015-07-15"
+    },
+    "TRNFP": {
+      "name": "Транснефть, привилегированные акции",
+      "frequency": "1 раз в год; дополнительная полугодовая выплата была в 2017",
+      "payments": [
+        {
+          "recordDate": "2026-07-20",
+          "amount": 204.17,
+          "period": "2025 год",
+          "lastBuyDate": "2026-07-17"
+        },
+        {
+          "recordDate": "2025-07-17",
+          "amount": 198.25,
+          "period": "2024 год",
+          "lastBuyDate": "2025-07-16"
+        },
+        {
+          "recordDate": "2024-07-18",
+          "amount": 177.2,
+          "period": "2023 год",
+          "lastBuyDate": "2024-07-17"
+        },
+        {
+          "recordDate": "2023-07-20",
+          "amount": 166.652,
+          "period": "2022 год",
+          "lastBuyDate": "2023-07-18"
+        },
+        {
+          "recordDate": "2022-07-20",
+          "amount": 104.9736,
+          "period": "2021 год",
+          "lastBuyDate": "2022-07-18"
+        },
+        {
+          "recordDate": "2021-07-19",
+          "amount": 92.2428,
+          "period": "2020 год"
+        },
+        {
+          "recordDate": "2020-10-20",
+          "amount": 116.122,
+          "period": "2019 год",
+          "lastBuyDate": "2020-10-16"
+        },
+        {
+          "recordDate": "2019-07-20",
+          "amount": 107.0595,
+          "period": "2018 год",
+          "lastBuyDate": "2019-07-17"
+        },
+        {
+          "recordDate": "2018-07-10",
+          "amount": 75.7827,
+          "period": "2017 год (окончательная часть)",
+          "lastBuyDate": "2018-07-06"
+        },
+        {
+          "recordDate": "2017-09-19",
+          "amount": 38.7549,
+          "period": "6м 2017",
+          "lastBuyDate": "2017-09-15"
+        },
+        {
+          "recordDate": "2017-07-20",
+          "amount": 42.9648,
+          "period": "2016 год"
+        },
+        {
+          "recordDate": "2016-07-20",
+          "amount": 8.2331,
+          "period": "2015 год"
+        },
+        {
+          "recordDate": "2015-07-20",
+          "amount": 7.5787,
+          "period": "2014 год"
+        },
+        {
+          "recordDate": "2014-07-20",
+          "amount": 7.2421,
+          "period": "2013 год"
+        }
+      ],
+      "schedule": [
+        {
+          "label": "Годовой дивиденд",
+          "recordWindow": "середина–20-е числа июля",
+          "payoutWindow": "конец июля – август",
+          "months": [
+            7
+          ]
+        },
+        {
+          "label": "Редкое дополнительное распределение",
+          "recordWindow": "сентябрь — единственный современный прецедент 2017 года",
+          "payoutWindow": "октябрь",
+          "months": [
+            9
+          ],
+          "historicalOnly": true
+        }
+      ],
+      "next": {
+        "recordDate": "2027-07-20",
+        "amount": 175.17,
+        "status": "прогноз",
+        "comment": "Прогноз УК «ДОХОДЪ» за 2026 год; решение о сумме и реестре не принято. Последняя выплата — 204,17 руб. за 2025 год, реестр 20.07.2026."
+      },
+      "policy": "Практический ориентир по распоряжениям государства — не менее 50% нормализованной чистой прибыли по МСФО, если правительством не установлено иное; дивиденд по префу не ниже дивиденда по обычной акции. Нормализация прибыли, повышенная налоговая нагрузка, тарифы и CAPEX влияют на доступную сумму.",
+      "sources": [
+        "https://dohod.ru/ik/analytics/dividend/trnfp",
+        "https://smart-lab.ru/q/TRNFP/dividend/",
+        "https://ptport.ru/investors/for-shareholder/dividends/",
+        "https://investmint.ru/trnfp/divs/"
+      ],
+      "adjustment": "Все суммы приведены на одну нынешнюю акцию после дробления 1:100 в феврале 2024: дивиденды до дробления разделены на 100, например 16665,20 руб. = 166,652 руб.",
+      "notes": [
+        "Реестр выплаты за 2020 год — 19.07.2021 по таблице группы, а не 20.07.2021, как ошибочно указано на Smart-Lab. Окончательная часть за 2017 год 75,7827 руб. не включает ранее выплаченные 38,7549 руб."
+      ],
+      "paymentsPerYear": {
+        "2015": 1,
+        "2016": 1,
+        "2017": 2,
+        "2018": 1,
+        "2019": 1,
+        "2020": 1,
+        "2021": 1,
+        "2022": 1,
+        "2023": 1,
+        "2024": 1,
+        "2025": 1,
+        "2026": 1
+      },
+      "historyFrom": "2014-07-20"
+    },
+    "PHOR": {
+      "name": "ФосАгро",
+      "frequency": "исторически до 4 раз в год; в 2025 было 2, в 2026 до 23 ноября выплат не было",
+      "payments": [
+        {
+          "recordDate": "2025-10-01",
+          "amount": 273.0,
+          "period": "6м 2025",
+          "lastBuyDate": "2025-09-30"
+        },
+        {
+          "recordDate": "2025-06-09",
+          "amount": 87.0,
+          "period": "4кв 2024",
+          "lastBuyDate": "2025-06-06"
+        },
+        {
+          "recordDate": "2024-12-22",
+          "amount": 126.0,
+          "period": "3кв 2024",
+          "lastBuyDate": "2024-12-19"
+        },
+        {
+          "recordDate": "2024-09-22",
+          "amount": 117.0,
+          "period": "2кв 2024",
+          "lastBuyDate": "2024-09-19"
+        },
+        {
+          "recordDate": "2024-07-11",
+          "amount": 309.0,
+          "period": "2023 год (294 руб.) + 1кв 2024 (15 руб.)",
+          "lastBuyDate": "2024-07-10"
+        },
+        {
+          "recordDate": "2023-12-25",
+          "amount": 291.0,
+          "period": "9м 2023 (доплата за 2–3кв)",
+          "lastBuyDate": "2023-12-22"
+        },
+        {
+          "recordDate": "2023-07-11",
+          "amount": 264.0,
+          "period": "1кв 2023",
+          "lastBuyDate": "2023-07-07"
+        },
+        {
+          "recordDate": "2023-04-04",
+          "amount": 465.0,
+          "period": "4кв 2022",
+          "lastBuyDate": "2023-03-31"
+        },
+        {
+          "recordDate": "2022-12-19",
+          "amount": 318.0,
+          "period": "3кв 2022",
+          "lastBuyDate": "2022-12-15"
+        },
+        {
+          "recordDate": "2022-10-03",
+          "amount": 780.0,
+          "period": "2021 год (390 руб.) + 6м 2022 (390 руб.)",
+          "lastBuyDate": "2022-09-29"
+        },
+        {
+          "recordDate": "2021-12-20",
+          "amount": 234.0,
+          "period": "3кв 2021",
+          "lastBuyDate": "2021-12-16"
+        },
+        {
+          "recordDate": "2021-09-24",
+          "amount": 156.0,
+          "period": "2кв 2021",
+          "lastBuyDate": "2021-09-22"
+        },
+        {
+          "recordDate": "2021-07-05",
+          "amount": 105.0,
+          "period": "1кв 2021",
+          "lastBuyDate": "2021-07-01"
+        },
+        {
+          "recordDate": "2021-06-07",
+          "amount": 63.0,
+          "period": "4кв 2020",
+          "lastBuyDate": "2021-06-03"
+        },
+        {
+          "recordDate": "2020-12-25",
+          "amount": 123.0,
+          "period": "3кв 2020",
+          "lastBuyDate": "2020-12-23"
+        },
+        {
+          "recordDate": "2020-10-15",
+          "amount": 33.0,
+          "period": "2кв 2020",
+          "lastBuyDate": "2020-10-13"
+        },
+        {
+          "recordDate": "2020-07-06",
+          "amount": 78.0,
+          "period": "1кв 2020",
+          "lastBuyDate": "2020-07-02"
+        },
+        {
+          "recordDate": "2020-06-02",
+          "amount": 18.0,
+          "period": "4кв 2019",
+          "lastBuyDate": "2020-05-29"
+        },
+        {
+          "recordDate": "2020-02-04",
+          "amount": 48.0,
+          "period": "3кв 2019",
+          "lastBuyDate": "2020-01-31"
+        },
+        {
+          "recordDate": "2019-10-15",
+          "amount": 54.0,
+          "period": "2кв 2019",
+          "lastBuyDate": "2019-10-11"
+        },
+        {
+          "recordDate": "2019-07-10",
+          "amount": 72.0,
+          "period": "1кв 2019",
+          "lastBuyDate": "2019-07-08"
+        },
+        {
+          "recordDate": "2019-06-10",
+          "amount": 51.0,
+          "period": "4кв 2018",
+          "lastBuyDate": "2019-06-06"
+        },
+        {
+          "recordDate": "2019-02-04",
+          "amount": 72.0,
+          "period": "3кв 2018",
+          "lastBuyDate": "2019-01-31"
+        },
+        {
+          "recordDate": "2018-10-12",
+          "amount": 45.0,
+          "period": "2кв 2018",
+          "lastBuyDate": "2018-10-10"
+        },
+        {
+          "recordDate": "2018-07-23",
+          "amount": 24.0,
+          "period": "1кв 2018",
+          "lastBuyDate": "2018-07-19"
+        },
+        {
+          "recordDate": "2018-06-13",
+          "amount": 15.0,
+          "period": "4кв 2017",
+          "lastBuyDate": "2018-06-09"
+        },
+        {
+          "recordDate": "2018-03-12",
+          "amount": 21.0,
+          "period": "3кв 2017"
+        },
+        {
+          "recordDate": "2017-10-13",
+          "amount": 24.0,
+          "period": "2кв 2017",
+          "lastBuyDate": "2017-10-11"
+        },
+        {
+          "recordDate": "2017-07-17",
+          "amount": 21.0,
+          "period": "1кв 2017"
+        },
+        {
+          "recordDate": "2017-06-13",
+          "amount": 30.0,
+          "period": "4кв 2016",
+          "lastBuyDate": "2017-06-08"
+        },
+        {
+          "recordDate": "2017-01-27",
+          "amount": 39.0,
+          "period": "3кв 2016",
+          "lastBuyDate": "2017-01-25"
+        },
+        {
+          "recordDate": "2016-10-14",
+          "amount": 33.0,
+          "period": "2кв 2016",
+          "lastBuyDate": "2016-10-12"
+        },
+        {
+          "recordDate": "2016-08-10",
+          "amount": 63.0,
+          "period": "1кв 2016",
+          "lastBuyDate": "2016-08-08"
+        },
+        {
+          "recordDate": "2016-06-11",
+          "amount": 57.0,
+          "period": "4кв 2015",
+          "lastBuyDate": "2016-06-08"
+        },
+        {
+          "recordDate": "2016-01-26",
+          "amount": 63.0,
+          "period": "3кв 2015",
+          "lastBuyDate": "2016-01-22"
+        },
+        {
+          "recordDate": "2015-10-17",
+          "amount": 57.0,
+          "period": "2кв 2015",
+          "lastBuyDate": "2015-10-14"
+        },
+        {
+          "recordDate": "2015-07-25",
+          "amount": 48.0,
+          "period": "1кв 2015",
+          "lastBuyDate": "2015-07-22"
+        },
+        {
+          "recordDate": "2015-06-19",
+          "amount": 15.0,
+          "period": "4кв 2014"
+        },
+        {
+          "recordDate": "2015-01-11",
+          "amount": 20.0,
+          "period": "3кв 2014"
+        }
+      ],
+      "schedule": [
+        {
+          "label": "Годовая окончательная выплата",
+          "recordWindow": "апрель либо июнь–июль, часто объединяется с 1кв",
+          "payoutWindow": "конец апреля – май либо конец июня – август",
+          "months": [
+            4,
+            6,
+            7
+          ]
+        },
+        {
+          "label": "Первый квартал",
+          "recordWindow": "начало–середина июля; ранее иногда конец июля–август",
+          "payoutWindow": "конец июля – август",
+          "months": [
+            7,
+            8
+          ]
+        },
+        {
+          "label": "Полугодие / второй квартал",
+          "recordWindow": "конец сентября – середина октября",
+          "payoutWindow": "октябрь – начало ноября",
+          "months": [
+            9,
+            10
+          ]
+        },
+        {
+          "label": "9 месяцев / третий квартал",
+          "recordWindow": "середина–конец декабря; до 2020 года также январь–февраль",
+          "payoutWindow": "конец декабря – январь; при зимнем реестре февраль",
+          "months": [
+            12,
+            1,
+            2
+          ]
+        }
+      ],
+      "next": {
+        "recordDate": "2026-12-13",
+        "amount": 309,
+        "status": "рекомендован",
+        "comment": "СД 30.10.2026 рекомендовал 309 руб. из нераспределённой прибыли прошлых лет; ОСА назначено на 02.12.2026. Это ещё не утверждённая выплата; рекомендованный последний день покупки — 10.12.2026.",
+        "lastBuyDate": "2026-12-10",
+        "period": "нераспределённая прибыль прошлых лет"
+      },
+      "policy": "Ориентир зависит от ЧД/EBITDA: от ≤50% до ≥75% FCF, с нижним ориентиром 50% скорректированной прибыли МСФО; СД может снижать выплату при риске ухудшения финансового положения. Квартальная периодичность не гарантирована: отказы в 2023–2026, капитальные затраты, долг и цены удобрений делают календарь нестабильным.",
+      "sources": [
+        "https://dohod.ru/ik/analytics/dividend/phor",
+        "https://smart-lab.ru/q/PHOR/dividend/",
+        "https://www.phosagro.ru/investors/capital/dividends/",
+        "https://www.phosagro.com/press/company/phosagro-board-of-directors-calls-extraordinary-meeting-of-shareholders-for-2-december/",
+        "https://investmint.ru/phor/divs/"
+      ],
+      "notes": [
+        "Рекомендации 201 руб. с предполагаемым реестром 05.07.2025 и 126 руб. с предполагаемым реестром 11.10.2023 не утверждены и исключены. Строка 21 руб. с реестром 04.01.2017 из Smart-Lab не подтверждается официальной историей и также исключена.",
+        "Официальная верхняя таблица описывает 264 руб. 11.07.2023 как 1кв 2023; нижняя таблица раскрытия делит сумму на 216 руб. за 1кв и 48 руб. из накопленной прибыли. Денежное событие 264 руб. отражено один раз.",
+        "2015–2016 суммы 48, 57 и 63 руб. взяты из официальной истории; несовпадающие меньшие суммы Smart-Lab не использованы."
+      ],
+      "paymentsPerYear": {
+        "2015": 4,
+        "2016": 4,
+        "2017": 4,
+        "2018": 4,
+        "2019": 4,
+        "2020": 5,
+        "2021": 4,
+        "2022": 2,
+        "2023": 3,
+        "2024": 3,
+        "2025": 2,
+        "2026": 0
+      },
+      "historyFrom": "2015-01-11"
+    },
+    "YDEX": {
+      "name": "Яндекс МКПАО",
+      "frequency": "2 раза в год; первая выплата состоялась в 2024 году",
+      "payments": [
+        {
+          "recordDate": "2026-09-21",
+          "amount": 110.0,
+          "period": "6м 2026",
+          "lastBuyDate": "2026-09-18"
+        },
+        {
+          "recordDate": "2026-04-27",
+          "amount": 110.0,
+          "period": "2025 год",
+          "lastBuyDate": "2026-04-24"
+        },
+        {
+          "recordDate": "2025-09-29",
+          "amount": 80.0,
+          "period": "6м 2025",
+          "lastBuyDate": "2025-09-26"
+        },
+        {
+          "recordDate": "2025-04-28",
+          "amount": 80.0,
+          "period": "2024 год",
+          "lastBuyDate": "2025-04-25"
+        },
+        {
+          "recordDate": "2024-09-20",
+          "amount": 80.0,
+          "period": "6м 2024",
+          "lastBuyDate": "2024-09-19"
+        }
+      ],
+      "schedule": [
+        {
+          "label": "Годовой дивиденд",
+          "recordWindow": "конец апреля",
+          "payoutWindow": "май",
+          "months": [
+            4
+          ]
+        },
+        {
+          "label": "Полугодовой дивиденд",
+          "recordWindow": "вторая половина–конец сентября",
+          "payoutWindow": "октябрь",
+          "months": [
+            9
+          ]
+        }
+      ],
+      "next": {
+        "recordDate": "2027-04-27",
+        "amount": 110,
+        "status": "прогноз",
+        "comment": "Прогноз УК «ДОХОДЪ» за 2026 год, не рекомендация. В 2026 уже были две выплаты по 110 руб.: реестры 27.04.2026 и 21.09.2026."
+      },
+      "policy": "Российский Яндекс начал платить дивиденды в 2024 году и планирует делать это дважды в год; обязательного процента прибыли в политике нет. Размер зависит от результатов, ликвидности и планов инвестиций, поэтому рост прошлых выплат не гарантирует следующую.",
+      "sources": [
+        "https://dohod.ru/ik/analytics/dividend/ydex",
+        "https://smart-lab.ru/q/YDEX/dividend/",
+        "https://www.finam.ru/publications/item/aktsionery-yandeksa-utverdili-dividendy-za-1-polugodie-v-110-rubley-na-aktsiyu-20260915-1210/"
+      ],
+      "notes": [
+        "Дивиденды прежней Yandex N.V. не подменяются историей МКПАО: до 2024 года регулярных выплат по биржевым акциям Яндекса не было."
+      ],
+      "paymentsPerYear": {
+        "2015": 0,
+        "2016": 0,
+        "2017": 0,
+        "2018": 0,
+        "2019": 0,
+        "2020": 0,
+        "2021": 0,
+        "2022": 0,
+        "2023": 0,
+        "2024": 1,
+        "2025": 2,
+        "2026": 2
+      },
+      "historyFrom": "2024-09-20"
+    },
+    "TGLD": {
+      "name": "Фонд «Золото» Т-Капитал",
+      "frequency": "не выплачивает дивиденды",
+      "payments": [],
+      "schedule": [],
+      "next": {
+        "recordDate": null,
+        "amount": null,
+        "status": "не ожидается",
+        "comment": "Накопительный фонд: денежные дивиденды владельцам паёв не распределяются."
+      },
+      "policy": "TGLD — накопительный БПИФ, не дивидендная акция: результат инвестирования остаётся в стоимости пая. Денежный доход инвестора обычно реализуется продажей или погашением пая; стоимость зависит от золота, валютного курса и расходов фонда.",
+      "sources": [
+        "https://www.tradingview.com/symbols/RUS-TGLD/profile/",
+        "https://www.tbank.ru/invest/etfs/TGLD@/"
+      ],
+      "paymentsPerYear": {
+        "2015": 0,
+        "2016": 0,
+        "2017": 0,
+        "2018": 0,
+        "2019": 0,
+        "2020": 0,
+        "2021": 0,
+        "2022": 0,
+        "2023": 0,
+        "2024": 0,
+        "2025": 0,
+        "2026": 0
+      },
+      "historyFrom": null
+    }
+  },
+  "methodology": {
+    "currency": "RUB",
+    "amountBasis": "На одну акцию до удержания НДФЛ; PLZL и TRNFP пересчитаны только на дробления, VTBR — на консолидацию. RAGR до 2025 — приблизительный экономический эквивалент старых ГДР; это явно отмечено.",
+    "dateBasis": "recordDate — дата списка получателей дивиденда, не дата фактического поступления денег. lastBuyDate — опубликованный последний день покупки; старые даты до августа 2023 учитывали Т+2, новые обычно Т+1.",
+    "annualCounts": "paymentsPerYear — количество разных прошедших дат реестра в календарном году, а не число периодов прибыли и не год, за который платили. Суммы на один реестр, распределённые по нескольким периодам, объединены; будущие рекомендации и прогнозы не входят. 2026 год неполный — по 23 ноября.",
+    "payoutWindows": "Окна поступления ориентировочные для обычного российского брокерского счёта: обычно примерно 2–4 недели после реестра. Эмитент платит номинальному держателю в пределах 10 рабочих дней, другим лицам в реестре — 25 рабочих дней; брокерская обработка, праздники, иностранная инфраструктура и ограничения могут удлинять срок.",
+    "forecastBasis": "Суммы и точные даты со статусом «прогноз» — модель УК «ДОХОДЪ», проверенная 23.11.2026; это не официальные будущие реестры. «Рекомендован» не означает «утверждён». Неизвестные суммы/даты представлены null, не выдуманы.",
+    "coverage": "Основное покрытие — прошедшие реестры 2015–23.11.2026; у молодых/редомицилированных эмитентов добавлена доступная история прежних бумаг с оговорками, у MDMG история начинается в 2013, у TRNFP дополнительно указан 2014.",
+    "sourceConflicts": "При несовпадениях история и периоды эмитента имеют приоритет. Агрегаторные прогнозы в истории не считаются платежами; устаревшие и спорные данные оговорены рядом с конкретным эмитентом."
+  }
+};
+                                                                                              
+
+                                                                                
+
+                                                                     
+
+                       
+                
+                          
+                          
+                          
+                          
+                 
+                 
+                 
+                       
+                       
+                       
+                        
+                                  
+  
+
+                      
+                   
+                
+                
+                
+                    
+  
+
+const SIGNAL_LABEL                             = {
+  strong_sell: "Продавать",
+  sell: "Частично продать",
+  hold: "Держать",
+  buy: "Докупать",
+  strong_buy: "Покупать на дне",
+};
+
+const pct = (a        , b        ) => (b ? (a / b - 1) * 100 : 0);
+
+function sma(values          , n        )                {
+  if (values.length < n) return null;
+  const slice = values.slice(-n);
+  return slice.reduce((s, v) => s + v, 0) / n;
+}
+
+function rsi(values          , n = 14)                {
+  if (values.length < n + 1) return null;
+  let gain = 0;
+  let loss = 0;
+  for (let i = 1; i <= n; i++) {
+    const d = values[i] - values[i - 1];
+    if (d > 0) gain += d;
+    else loss -= d;
+  }
+  let avgG = gain / n;
+  let avgL = loss / n;
+  for (let i = n + 1; i < values.length; i++) {
+    const d = values[i] - values[i - 1];
+    avgG = (avgG * (n - 1) + Math.max(d, 0)) / n;
+    avgL = (avgL * (n - 1) + Math.max(-d, 0)) / n;
+  }
+  if (avgG === 0 && avgL === 0) return 50;
+  if (avgL === 0) return 100;
+  if (avgG === 0) return 0;
+  const rs = avgG / avgL;
+  return 100 - 100 / (1 + rs);
+}
+
+function range(candles          , price        )        {
+  if (!candles.length) return { min: price, max: price, pos: null };
+  const min = Math.min(price, ...candles.map(c => c.low));
+  const max = Math.max(price, ...candles.map(c => c.high));
+  return { min, max, pos: max > min ? (price - min) / (max - min) : 0.5 };
+}
+
+/** Свечи за последние `days` календарных дней (на бирже бывают торги в выходные). */
+function since(candles          , days        )           {
+  if (!candles.length) return [];
+  const last = new Date(candles[candles.length - 1].date).getTime();
+  const from = last - days * 86400000;
+  return candles.filter(c => new Date(c.date).getTime() > from);
+}
+
+function back(candles          , days        , price        )                {
+  if (candles.length < 2) return null;
+  const last = new Date(candles[candles.length - 1].date).getTime();
+  const target = last - days * 86400000;
+  if (new Date(candles[0].date).getTime() > target) return null;
+  let ref                = null;
+  for (const c of candles) {
+    if (new Date(c.date).getTime() <= target) ref = c;
+    else break;
+  }
+  return ref ? pct(price, ref.close) : null;
+}
+
+/**
+ * candles — дневные свечи по возрастанию даты. Текущая цена заменяет свечу только если она
+ * сегодняшняя; иначе добавляется временная свеча на сегодня (today, YYYY-MM-DD по Москве).
+ */
+function computeMetrics(src          , livePrice                , prevClose                , today         )          {
+  let candles = src;
+  const lastC = src[src.length - 1];
+  if (livePrice && lastC) {
+    if (!today || lastC.date === today) {
+      candles = [...src.slice(0, -1), { ...lastC, close: livePrice, high: Math.max(lastC.high, livePrice), low: Math.min(lastC.low, livePrice) }];
+    } else if (today > lastC.date) {
+      candles = [...src, { date: today, open: livePrice, high: livePrice, low: livePrice, close: livePrice }];
+    }
+  }
+  const closes = candles.map(c => c.close);
+  const price = livePrice ?? closes[closes.length - 1] ?? 0;
+  const prev = prevClose ?? closes[closes.length - 2] ?? null;
+  const year = since(candles, 365);
+  const yHigh = year.length ? Math.max(price, ...year.map(c => c.high)) : null;
+  return {
+    price,
+    change1d: prev ? pct(price, prev) : null,
+    change1w: back(candles, 7, price),
+    change1m: back(candles, 30, price),
+    change1y: back(candles, 365, price),
+    range1w: range(since(candles, 7), price),
+    range1m: range(since(candles, 30), price),
+    range1y: range(year, price),
+    rsi14: rsi(closes),
+    sma20: sma(closes, 20),
+    sma50: sma(closes, 50),
+    sma200: sma(closes, 200),
+    drawdownFromHigh: yHigh ? pct(price, yHigh) : null,
+  };
+}
+
+const fmt = (n        , d = 0) => n.toLocaleString("ru-RU", { maximumFractionDigits: d, minimumFractionDigits: d });
+
+/**
+ * Простая прозрачная модель: набирает «очки продажи» и «очки покупки»,
+ * разница определяет сигнал. Каждое очко сопровождается объяснением.
+ */
+function computeSignal(m         , avgPrice                , daysToDividend                )         {
+  let buy = 0;
+  let sell = 0;
+  const reasons           = [];
+  const p1m = m.range1m.pos;
+  const p1y = m.range1y.pos;
+  const p1w = m.range1w.pos;
+
+  if (p1y !== null && p1y >= 0.9) {
+    sell += 2;
+    reasons.push(`Цена у годового максимума (${fmt(m.range1y.max, 2)} ₽) — исторически дорого.`);
+  } else if (p1y !== null && p1y >= 0.75) {
+    sell += 1;
+    reasons.push("Цена в верхней четверти годового диапазона.");
+  } else if (p1y !== null && p1y <= 0.1) {
+    buy += 2;
+    reasons.push(`Цена у годового минимума (${fmt(m.range1y.min, 2)} ₽) — близко ко дну за год.`);
+  } else if (p1y !== null && p1y <= 0.25) {
+    buy += 1;
+    reasons.push("Цена в нижней четверти годового диапазона.");
+  }
+
+  if (p1m !== null && p1m >= 0.9) {
+    sell += 1;
+    reasons.push("Максимум за месяц — хороший момент частично зафиксировать.");
+  } else if (p1m !== null && p1m <= 0.1) {
+    buy += 1;
+    reasons.push("Минимум за месяц — цена на локальном дне.");
+  }
+
+  if (p1w !== null && p1w >= 0.95 && (m.change1w ?? 0) > 4) {
+    sell += 1;
+    reasons.push(`За неделю +${fmt(m.change1w ?? 0, 1)}% — резкий рост часто откатывается.`);
+  } else if (p1w !== null && p1w <= 0.05 && (m.change1w ?? 0) < -4) {
+    buy += 1;
+    reasons.push(`За неделю ${fmt(m.change1w ?? 0, 1)}% — сильная распродажа.`);
+  }
+
+  if (m.rsi14 !== null) {
+    if (m.rsi14 >= 72) {
+      sell += 2;
+      reasons.push(`RSI ${fmt(m.rsi14)} — бумага перекуплена.`);
+    } else if (m.rsi14 >= 65) {
+      sell += 1;
+      reasons.push(`RSI ${fmt(m.rsi14)} — близко к перекупленности.`);
+    } else if (m.rsi14 <= 28) {
+      buy += 2;
+      reasons.push(`RSI ${fmt(m.rsi14)} — бумага перепродана.`);
+    } else if (m.rsi14 <= 35) {
+      buy += 1;
+      reasons.push(`RSI ${fmt(m.rsi14)} — близко к перепроданности.`);
+    }
+  }
+
+  if (m.sma50) {
+    const d = pct(m.price, m.sma50);
+    if (d >= 10) {
+      sell += 1;
+      reasons.push(`Цена на ${fmt(d, 0)}% выше средней за 50 дней — оторвалась от тренда.`);
+    } else if (d <= -10) {
+      buy += 1;
+      reasons.push(`Цена на ${fmt(-d, 0)}% ниже средней за 50 дней.`);
+    }
+  }
+
+  if (m.sma200) {
+    if (m.price > m.sma200) reasons.push("Выше средней за 200 дней — долгосрочный тренд вверх.");
+    else reasons.push("Ниже средней за 200 дней — долгосрочный тренд вниз, докупать частями.");
+  }
+
+  if (avgPrice && avgPrice > 0) {
+    const pl = pct(m.price, avgPrice);
+    if (pl >= 20) {
+      sell += 1;
+      reasons.push(`Ты в плюсе на ${fmt(pl, 0)}% от своей средней — можно забрать часть прибыли.`);
+    } else if (pl <= -15) {
+      buy += 1;
+      reasons.push(`Цена на ${fmt(-pl, 0)}% ниже твоей средней — докупка снизит среднюю.`);
+    }
+  }
+
+  if (daysToDividend !== null && daysToDividend !== undefined && daysToDividend >= 0 && daysToDividend <= 45) {
+    reasons.push(
+      `Ожидаемая дивидендная отсечка примерно через ${daysToDividend} дн. — продавать до неё невыгодно, после отсечки цена обычно проседает (гэп).`,
+    );
+    if (sell > 0) sell -= 1;
+  }
+
+  const score = buy - sell;
+  let kind             = "hold";
+  if (score >= 4) kind = "strong_buy";
+  else if (score >= 2) kind = "buy";
+  else if (score <= -4) kind = "strong_sell";
+  else if (score <= -2) kind = "sell";
+
+  const short                             = {
+    strong_buy: "Цена на дне — хороший момент купить",
+    buy: "Ниже обычного — можно докупить",
+    hold: "Без явного сигнала — держим",
+    sell: "Дорого — можно частично зафиксировать",
+    strong_sell: "У максимумов — момент продать",
+  };
+  if (!reasons.length) reasons.push("Цена в середине диапазонов, индикаторы нейтральны.");
+
+  let title = SIGNAL_LABEL[kind];
+  if (kind === "sell" && avgPrice && m.price > avgPrice) title = "Фиксировать прибыль";
+  return { kind, title, short: short[kind], score, reasons };
+}
+
+const raw = DIV_DATA;
+
+                                                                                     
+                              
+                
+                       
+                       
+                   
+                                                                       
+                           
+  
+                            
+                             
+                         
+                 
+                   
+  
+                            
+               
+                    
+                              
+                             
+                             
+                 
+  
+
+const DIVIDENDS = raw                                                                    ;
+
+/** Сегодняшняя дата по Москве в формате YYYY-MM-DD. */
+function moscowToday(now = new Date())         {
+  return new Date(now.getTime() + 3 * 3600_000).toISOString().slice(0, 10);
+}
+
+/** Разница в днях между двумя датами YYYY-MM-DD. */
+function dayDiff(from        , to        )         {
+  return Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / 86400000);
+}
+
+const ymd = (y        , m        , d        ) => `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+
+                                
+                 
+                   
+               
+               
+                 
+                        
+                 
+                
+  
+
+function isNoDividend(info                          ) {
+  return !!info && info.next?.status === "не ожидается";
+}
+
+function activeWindows(info                          ) {
+  return (info?.schedule ?? []).filter(w => !w.historicalOnly);
+}
+
+/** Ближайшая отсечка: объявленная/прогнозная дата или ближайший типичный месяц. */
+function estimateNextDividend(ticker        , today = moscowToday())                          {
+  const info = DIVIDENDS.items[ticker];
+  if (!info || isNoDividend(info)) return null;
+  const n = info.next;
+  const windows = activeWindows(info);
+
+  if (n?.recordDate && /^\d{4}-\d{2}-\d{2}$/.test(n.recordDate) && dayDiff(today, n.recordDate) >= 0) {
+    const m = Number(n.recordDate.slice(5, 7));
+    const w = windows.find(s => s.months.includes(m)) ?? windows[0];
+    return {
+      ticker,
+      date: n.recordDate,
+      days: dayDiff(today, n.recordDate),
+      exact: /утвержд|рекомендо/i.test(n.status),
+      amount: n.amount ?? null,
+      status: n.status,
+      label: w?.label ?? "Дивиденд",
+    };
+  }
+
+  // Запасной вариант: ближайший типичный месяц (берём середину месяца), сумма неизвестна.
+  const [ty, tm] = today.split("-").map(Number);
+  let best                          = null;
+  for (const w of windows) {
+    for (const m of w.months) {
+      const y = m > tm || (m === tm && dayDiff(today, ymd(ty, m, 15)) >= 0) ? ty : ty + 1;
+      const date = ymd(y, m, 15);
+      const days = dayDiff(today, date);
+      if (!best || days < best.days) {
+        best = { ticker, date, days, exact: false, amount: null, status: "ориентир по прошлым годам", label: w.label };
+      }
+    }
+  }
+  return best;
+}
+
+const MONTHS_GEN = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
+
+/** «2026-12-09» → «9 декабря»; год добавляется, только если он не текущий (по Москве). */
+function ruDate(iso        ) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso);
+  if (!m) return iso;
+  const year = m[1] !== moscowToday().slice(0, 4) ? ` ${m[1]}` : "";
+  return `${Number(m[3])} ${MONTHS_GEN[Number(m[2]) - 1]}${year}`;
+}
+
+                                         
+
+                       
+                 
+               
+              
+                   
+                  
+  
+
+                         
+                      
+               
+  
+
+/** Позиции со скриншотов брокерского счёта Т-Банка (22.11.2026). */
+const DEFAULT_PORTFOLIO            = {
+  cash: 10.69,
+  holdings: [
+    { ticker: "VTBR", name: "Банк ВТБ", qty: 1, avgPrice: 58.1, kind: "share" },
+    { ticker: "ASTR", name: "Группа Астра", qty: 2, avgPrice: 219.3, kind: "share" },
+    { ticker: "LSRG", name: "Группа ЛСР", qty: 1, avgPrice: 900.6, kind: "share" },
+    { ticker: "IRAO", name: "Интер РАО", qty: 1000, avgPrice: 2.86, kind: "share" },
+    { ticker: "X5", name: "X5 (Корпоративный центр ИКС 5)", qty: 6, avgPrice: 2278.33, kind: "share" },
+    { ticker: "LKOH", name: "ЛУКОЙЛ", qty: 2, avgPrice: 5507.75, kind: "share" },
+    { ticker: "MDMG", name: "Мать и дитя", qty: 1, avgPrice: 1301.4, kind: "share" },
+    { ticker: "NVTK", name: "НОВАТЭК", qty: 5, avgPrice: 1138.7, kind: "share" },
+    { ticker: "PLZL", name: "Полюс", qty: 7, avgPrice: 1118, kind: "share" },
+    { ticker: "RAGR", name: "РусАгро", qty: 1, avgPrice: 71.14, kind: "share" },
+    { ticker: "SBER", name: "Сбербанк", qty: 80, avgPrice: 296.16, kind: "share" },
+    { ticker: "TATNP", name: "Татнефть — прив.", qty: 2, avgPrice: 578.9, kind: "share" },
+    { ticker: "TRNFP", name: "Транснефть — прив.", qty: 1, avgPrice: 1049, kind: "share" },
+    { ticker: "PHOR", name: "ФосАгро", qty: 1, avgPrice: 5203, kind: "share" },
+    { ticker: "YDEX", name: "Яндекс", qty: 2, avgPrice: 3444.5, kind: "share" },
+    { ticker: "TGLD", name: "Золото (фонд Т-Капитал)", qty: 1, avgPrice: 14.91, kind: "fund" },
+  ],
+};
+
+/** Брендовые цвета для кружков-логотипов. */
+const BRAND                                                           = {
+  VTBR: { bg: "#0A2896", fg: "#fff", mark: "ВТБ" },
+  ASTR: { bg: "#1B2A33", fg: "#fff", mark: "А" },
+  LSRG: { bg: "#E30613", fg: "#fff", mark: "ЛСР" },
+  IRAO: { bg: "#8FA3B0", fg: "#fff", mark: "ИР" },
+  X5: { bg: "#0B6B2E", fg: "#fff", mark: "X5" },
+  LKOH: { bg: "#E2231A", fg: "#fff", mark: "ЛК" },
+  MDMG: { bg: "#7B2D6B", fg: "#fff", mark: "МД" },
+  NVTK: { bg: "#F2F4F7", fg: "#1D63C8", mark: "Н" },
+  PLZL: { bg: "#F7F7F2", fg: "#E7A800", mark: "П" },
+  RAGR: { bg: "#8E9A97", fg: "#fff", mark: "РА" },
+  SBER: { bg: "#F2F4F2", fg: "#21A038", mark: "С" },
+  TATNP: { bg: "#EEF0EE", fg: "#0F8A3C", mark: "Т" },
+  TRNFP: { bg: "#E9EDF3", fg: "#1756A6", mark: "ТН" },
+  PHOR: { bg: "#0F4C9A", fg: "#fff", mark: "ФА" },
+  YDEX: { bg: "#FC3F1D", fg: "#fff", mark: "Я" },
+  TGLD: { bg: "#F5D33F", fg: "#3A3000", mark: "Au" },
+};
+
+/* ===== Хранилище ===== */
+const LS_PF = "portfel.v1.portfolio";
+const LS_CACHE = "portfel.v1.cache";
+
+function loadPortfolio() {
+  try {
+    const raw = localStorage.getItem(LS_PF);
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  return JSON.parse(JSON.stringify(DEFAULT_PORTFOLIO));
+}
+function savePortfolio(p) {
+  try { localStorage.setItem(LS_PF, JSON.stringify(p)); } catch (e) {}
+}
+function readCache() {
+  try { return JSON.parse(localStorage.getItem(LS_CACHE) || "{}"); } catch (e) { return {}; }
+}
+function writeCache(c) {
+  try { localStorage.setItem(LS_CACHE, JSON.stringify(c)); } catch (e) {}
+}
+
+/* ===== Мосбиржа (ISS) ===== */
+const ISS = "https://iss.moex.com/iss";
+let jsonpN = 0;
+function jsonp(url) {
+  return new Promise((resolve, reject) => {
+    const name = "__moex" + (++jsonpN) + "_" + Date.now();
+    const sc = document.createElement("script");
+    const done = () => { delete window[name]; sc.remove(); };
+    window[name] = d => { done(); resolve(d); };
+    sc.onerror = () => { done(); reject(new Error("jsonp")); };
+    sc.src = url.replace(".json?", ".jsonp?") + "&callback=" + name;
+    document.head.appendChild(sc);
+  });
+}
+const TRANSPORTS = [
+  u => fetch(u).then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); }),
+  u => jsonp(u),
+  u => fetch("https://corsproxy.io/?" + encodeURIComponent(u)).then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); }),
+];
+let tIdx = 0;
+const lastErrors = [];
+
+async function getJson(url) {
+  let lastErr;
+  for (let k = 0; k < TRANSPORTS.length; k++) {
+    const i = (tIdx + k) % TRANSPORTS.length;
+    try {
+      const j = await Promise.race([
+        TRANSPORTS[i](url),
+        new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), 12000)),
+      ]);
+      tIdx = i;
+      return j;
+    } catch (e) { lastErr = e; lastErrors.push("способ " + (i + 1) + ": " + (e && e.message)); }
+  }
+  throw lastErr;
+}
+
+function rows(block) {
+  if (!block) return [];
+  return block.data.map(r => Object.fromEntries(block.columns.map((c, i) => [c, r[i]])));
+}
+const boardOf = h => (h.kind === "fund" ? "TQTF" : "TQBR");
+const isoDaysAgo = d => new Date(Date.now() - d * 86400000).toISOString().slice(0, 10);
+
+async function fetchQuotes(holdings) {
+  const out = {};
+  const boards = {};
+  holdings.forEach(h => (boards[boardOf(h)] = boards[boardOf(h)] || []).push(h.ticker));
+  await Promise.all(Object.entries(boards).map(async ([board, tickers]) => {
+    const url = `${ISS}/engines/stock/markets/shares/boards/${board}/securities.json?iss.meta=off&iss.only=marketdata,securities` +
+      `&securities=${tickers.join(",")}&marketdata.columns=SECID,LAST,MARKETPRICE,LCURRENTPRICE,UPDATETIME&securities.columns=SECID,PREVPRICE`;
+    try {
+      const j = await getJson(url);
+      const prev = Object.fromEntries(rows(j.securities).map(r => [r.SECID, r.PREVPRICE]));
+      for (const r of rows(j.marketdata)) {
+        out[r.SECID] = { last: r.LAST ?? r.LCURRENTPRICE ?? r.MARKETPRICE ?? null, prev: prev[r.SECID] ?? null };
+      }
+    } catch (e) { console.warn("quotes", board, e); }
+  }));
+  return out;
+}
+
+async function fetchCandles(ticker, board, isIndex) {
+  const base = isIndex
+    ? `${ISS}/engines/stock/markets/index/securities/${ticker}/candles.json`
+    : `${ISS}/engines/stock/markets/shares/boards/${board}/securities/${ticker}/candles.json`;
+  const all = [];
+  let start = 0;
+  for (let page = 0; page < 3; page++) {
+    const j = await getJson(`${base}?iss.meta=off&interval=24&from=${isoDaysAgo(400)}&start=${start}`);
+    const part = rows(j.candles).map(r => ({ date: String(r.begin).slice(0, 10), open: r.open, high: r.high, low: r.low, close: r.close }));
+    all.push(...part);
+    if (part.length < 500) break;
+    start += part.length;
+  }
+  return all;
+}
+
+async function pool(items, n, fn) {
+  const res = new Array(items.length);
+  let i = 0;
+  await Promise.all(Array.from({ length: Math.min(n, items.length) }, async () => {
+    while (i < items.length) { const k = i++; res[k] = await fn(items[k]); }
+  }));
+  return res;
+}
+
+/* ===== Снимок рынка ===== */
+const state = { snap: null, loading: false, error: null, updatedAt: null, fromCache: false };
+
+function moodOf(m) {
+  if (!m) return "Нет данных";
+  const p = m.range1y.pos ?? 0.5;
+  if (p <= 0.15) return "Рынок у годового дна";
+  if (p <= 0.35) return "Рынок под давлением";
+  if (p >= 0.85) return "Рынок у максимумов";
+  if (p >= 0.65) return "Рынок растёт";
+  return "Рынок в боковике";
+}
+
+function buildSnapshot(pf, quotes, candlesBy, indexCandles) {
+  const today = moscowToday();
+  const positions = pf.holdings.map(h => {
+    const candles = candlesBy[h.ticker] || [];
+    const q = quotes[h.ticker];
+    const live = q && q.last ? q.last : null;
+    const metrics = candles.length ? computeMetrics(candles, live, q ? q.prev : null, today) : null;
+    const price = live ?? (metrics ? metrics.price : null);
+    const value = (price ?? h.avgPrice) * h.qty;
+    const cost = h.avgPrice * h.qty;
+    const nd = estimateNextDividend(h.ticker, today);
+    const signal = metrics ? computeSignal(metrics, h.avgPrice, nd ? nd.days : null) : null;
+    const change1d = metrics ? metrics.change1d : null;
+    return { ...h, price, value, cost, pl: value - cost, plPct: cost ? (value / cost - 1) * 100 : 0,
+      change1d, metrics, signal, stale: price === null, nextDividend: nd, candles };
+  });
+  const invested = positions.reduce((s, p) => s + p.value, 0);
+  const cost = positions.reduce((s, p) => s + p.cost, 0);
+  const dayChange = positions.reduce((s, p) => {
+    if (p.change1d == null || p.price == null) return s;
+    return s + (p.price - p.price / (1 + p.change1d / 100)) * p.qty;
+  }, 0);
+  const im = indexCandles.length ? computeMetrics(indexCandles, null, null, today) : null;
+  return { total: invested + pf.cash, cost, pl: invested - cost, plPct: cost ? (invested / cost - 1) * 100 : 0,
+    dayChange, cash: pf.cash, positions, market: im ? { metrics: im, mood: moodOf(im), price: im.price } : null };
+}
+
+const toCandles = arr => (arr || []).map(r => ({ date: r[0], open: r[1], high: r[2], low: r[3], close: r[4] }));
+
+async function loadData() {
+  // Основной способ: файл data.json, который GitHub обновляет сам каждые ~15 минут.
+  const r = await fetch("data.json?t=" + Date.now(), { cache: "no-store" });
+  if (!r.ok) throw new Error("data.json: HTTP " + r.status);
+  const d = await r.json();
+  const candles = {};
+  for (const k in d.candles) candles[k] = toCandles(d.candles[k]);
+  return { quotes: d.quotes || {}, candles, index: toCandles(d.index), at: new Date(d.at).getTime() };
+}
+
+async function loadDirect(pf) {
+  // Запасной способ: напрямую с Мосбиржи (работает не везде).
+  const [quotes, idx] = await Promise.all([fetchQuotes(pf.holdings), fetchCandles("IMOEX", null, true).catch(() => [])]);
+  const candles = {};
+  await pool(pf.holdings, 4, async h => { try { candles[h.ticker] = await fetchCandles(h.ticker, boardOf(h), false); } catch (e) { candles[h.ticker] = []; } });
+  if (!Object.keys(quotes).length && !Object.values(candles).some(c => c.length)) throw new Error("Мосбиржа не ответила");
+  return { quotes, candles, index: idx, at: Date.now() };
+}
+
+async function refresh() {
+  if (state.loading) return;
+  state.loading = true; state.error = null; render();
+  const pf = loadPortfolio();
+  let data = null, why = [];
+  try { data = await loadData(); } catch (e) { why.push(String(e && e.message || e)); }
+  if (!data) { try { data = await loadDirect(pf); } catch (e) { why.push(String(e && e.message || e)); } }
+  if (data) {
+    writeCache(data);
+    state.snap = buildSnapshot(pf, data.quotes, data.candles, data.index);
+    state.updatedAt = new Date(data.at); state.fromCache = false;
+    const missing = pf.holdings.filter(h => !data.quotes[h.ticker] && !(data.candles[h.ticker] || []).length).map(h => h.ticker);
+    if (missing.length) state.error = "Нет данных по: " + missing.join(", ") + ". Новые бумаги появятся после ближайшего обновления данных.";
+    const age = Date.now() - data.at;
+    if (age > 36 * 3600e3) state.error = "Данные устарели (последнее обновление " + new Date(data.at).toLocaleString("ru-RU") + ").";
+  } else {
+    const c = readCache();
+    if (c.at) {
+      state.snap = buildSnapshot(pf, c.quotes || {}, c.candles || {}, c.index || []);
+      state.updatedAt = new Date(c.at); state.fromCache = true;
+    } else state.snap = buildSnapshot(pf, {}, {}, []);
+    state.error = "Не удалось получить котировки — показаны последние сохранённые данные. (" + why.join("; ") + ")";
+  }
+  state.loading = false; render();
+}
+
+/* ===== Форматирование ===== */
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const nf = (n, d = 2) => n.toLocaleString("ru-RU", { maximumFractionDigits: d, minimumFractionDigits: d });
+const rub = n => (n == null ? "—" : nf(n, Math.abs(n) >= 1000 ? 0 : 2) + " ₽");
+const sRub = n => (n == null ? "—" : (n > 0 ? "+" : n < 0 ? "−" : "") + nf(Math.abs(n), Math.abs(n) >= 1000 ? 0 : 2) + " ₽");
+const price = n => (n == null ? "—" : nf(n, n < 10 ? 3 : 2) + " ₽");
+const fpct = n => (n == null ? "—" : (n > 0 ? "+" : n < 0 ? "−" : "") + nf(Math.abs(n), 2) + "%");
+const tone = n => (n == null || Math.abs(n) < 0.005 ? "" : n > 0 ? "up" : "down");
+
+function logo(t) {
+  const b = BRAND[t] || { bg: "#2c2c2e", fg: "#fff", mark: t.slice(0, 2) };
+  return `<span class="logo" style="background:${b.bg};color:${b.fg}">${esc(b.mark)}</span>`;
+}
+function pill(sig) {
+  if (!sig) return `<span class="pill p-hold">Нет данных</span>`;
+  const cls = { strong_sell: "p-sell", sell: "p-sell", hold: "p-hold", buy: "p-buy", strong_buy: "p-buy" }[sig.kind];
+  return `<span class="pill ${cls}">${esc(sig.title)}</span>`;
+}
+function rangeBar(r, price_) {
+  if (!r || r.pos == null) return "";
+  return `<div class="rb"><div class="rb-t"><i style="left:${Math.round(r.pos * 100)}%"></i></div>
+    <div class="rb-l"><span>${nf(r.min, 2)}</span><span>${nf(r.max, 2)}</span></div></div>`;
+}
+
+/* ===== Экраны ===== */
+function header(title, sub, extra) {
+  return `<div class="lt"><div><h1>${esc(title)}</h1>${sub ? `<p>${esc(sub)}</p>` : ""}</div>${extra || ""}</div>`;
+}
+function banner() {
+  return state.error ? `<div class="warn">${esc(state.error)}</div>` : "";
+}
+function stamp() {
+  if (!state.updatedAt) return "";
+  const t = state.updatedAt.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
+  return `<div class="foot">${state.fromCache ? "Сохранено в " : "Обновлено в "}${t}. Это расчёт по простым правилам, а не инвестиционная рекомендация.</div>`;
+}
+const refreshBtn = () => `<button class="ibtn ${state.loading ? "spin" : ""}" onclick="refresh()" aria-label="Обновить">↻</button>`;
+
+function row(p, onclickPath) {
+  return `<a class="row" href="#/stock/${encodeURIComponent(p.ticker)}">${logo(p.ticker)}
+    <div class="grow"><div class="r1"><span class="nm">${esc(p.name)}</span><span class="tn">${price(p.price)}</span></div>
+    <div class="r2"><span class="muted ell">${esc(p.signal ? p.signal.reasons[0] : "Нет данных")}</span><span class="tn ${tone(p.change1d)}">${fpct(p.change1d)}</span></div></div><span class="chev">›</span></a>`;
+}
+function group(title, items, empty) {
+  return `<div class="gt">${esc(title)}</div><div class="grp">${items.length ? items.join("") : `<div class="empty">${esc(empty)}</div>`}</div>`;
+}
+
+function viewToday() {
+  const s = state.snap;
+  let html = header("Сегодня", new Date().toLocaleDateString("ru-RU", { weekday: "long", day: "numeric", month: "long" }), refreshBtn()) + banner();
+  if (!s) return html + `<div class="skel"></div><div class="skel"></div>`;
+  const sell = s.positions.filter(p => p.signal && (p.signal.kind === "sell" || p.signal.kind === "strong_sell"));
+  const buy = s.positions.filter(p => p.signal && (p.signal.kind === "buy" || p.signal.kind === "strong_buy"));
+  const soon = s.positions.filter(p => p.nextDividend && p.nextDividend.days >= 0 && p.nextDividend.days <= 60)
+    .sort((a, b) => a.nextDividend.days - b.nextDividend.days);
+  html += `<div class="card big"><div class="muted">Портфель</div><div class="num">${rub(s.total)}</div>
+    <div class="tn ${tone(s.dayChange)}">${sRub(s.dayChange)} сегодня</div>
+    <div class="muted sm">Всего: <span class="${tone(s.pl)}">${sRub(s.pl)} (${fpct(s.plPct)})</span></div></div>`;
+  if (s.market) {
+    const m = s.market.metrics;
+    html += `<div class="card"><div class="r1"><span>Индекс Мосбиржи</span><span class="tn">${nf(m.price, 0)}</span></div>
+      <div class="r2"><span class="muted">${esc(s.market.mood)}</span><span class="tn ${tone(m.change1d)}">${fpct(m.change1d)}</span></div>
+      <div class="muted sm" style="margin-top:8px">Диапазон за год</div>${rangeBar(m.range1y)}</div>`;
+  }
+  html += group("Можно продать или зафиксировать", sell.map(row), "Сегодня явных кандидатов нет");
+  html += group("Можно докупить", buy.map(row), "Сегодня явных кандидатов нет");
+  if (soon.length) {
+    html += group("Дивиденды в ближайшие 60 дней", soon.map(p => {
+      const d = p.nextDividend;
+      return `<a class="row" href="#/stock/${encodeURIComponent(p.ticker)}">${logo(p.ticker)}<div class="grow"><div class="r1"><span class="nm">${esc(p.name)}</span>
+        <span class="tn">${d.amount ? "≈ " + rub(d.amount * p.qty) : ""}</span></div>
+        <div class="r2"><span class="muted">${d.exact ? "отсечка" : "ориентир"} ${ruDate(d.date)}</span><span class="muted">через ${d.days} дн.</span></div></div></a>`;
+    }), "");
+  }
+  return html + stamp();
+}
+
+function viewPortfolio() {
+  const s = state.snap;
+  let html = header("Портфель", "", `<div class="btns">${refreshBtn()}<button class="ibtn txt" onclick="openEditor()">Изменить</button></div>`) + banner();
+  if (!s) return html + `<div class="skel"></div>`;
+  html += `<div class="card big"><div class="muted">Стоимость счёта</div><div class="num">${rub(s.total)}</div>
+    <div class="muted sm">В бумагах ${rub(s.total - s.cash)} · свободно ${rub(s.cash)}</div>
+    <div class="tn ${tone(s.pl)}" style="margin-top:4px">${sRub(s.pl)} (${fpct(s.plPct)}) за всё время</div></div>`;
+  const items = [...s.positions].sort((a, b) => b.value - a.value).map(p => `
+    <a class="row" href="#/stock/${encodeURIComponent(p.ticker)}">${logo(p.ticker)}
+      <div class="grow"><div class="r1"><span class="nm">${esc(p.name)}</span><span class="tn">${rub(p.value)}</span></div>
+      <div class="r2"><span class="muted">${nf(p.qty, p.qty % 1 ? 2 : 0)} шт · ${price(p.price)}${p.stale ? " (нет котировки)" : ""}</span><span class="tn ${tone(p.pl)}">${sRub(p.pl)} · ${fpct(p.plPct)}</span></div>
+      <div style="margin-top:6px">${pill(p.signal)}</div></div><span class="chev">›</span></a>`);
+  return html + `<div class="grp">${items.join("")}</div>` + stamp();
+}
+
+function chartSvg(candles, days) {
+  const pts = candles.slice(-Math.max(5, days));
+  if (pts.length < 2) return `<div class="empty">Нет истории цен</div>`;
+  const W = 340, H = 150, P = 4;
+  const closes = pts.map(c => c.close);
+  const mn = Math.min(...closes), mx = Math.max(...closes), span = mx - mn || 1;
+  const X = i => P + (i / (pts.length - 1)) * (W - 2 * P);
+  const Y = v => P + (1 - (v - mn) / span) * (H - 2 * P);
+  const d = closes.map((v, i) => `${i ? "L" : "M"}${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join("");
+  const up = closes[closes.length - 1] >= closes[0];
+  const col = up ? "#30d158" : "#ff453a";
+  const iMin = closes.indexOf(mn), iMax = closes.indexOf(mx);
+  return `<svg viewBox="0 0 ${W} ${H}" class="chart"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${col}" stop-opacity=".25"/><stop offset="1" stop-color="${col}" stop-opacity="0"/></linearGradient></defs>
+    <path d="${d}L${X(pts.length - 1)},${H}L${X(0)},${H}Z" fill="url(#g)"/><path d="${d}" fill="none" stroke="${col}" stroke-width="2" stroke-linejoin="round"/>
+    <circle cx="${X(iMax)}" cy="${Y(mx)}" r="3.5" fill="#fff"/><circle cx="${X(iMin)}" cy="${Y(mn)}" r="3.5" fill="#fff"/></svg>
+    <div class="rb-l"><span>мин ${nf(mn, 2)}</span><span>макс ${nf(mx, 2)}</span></div>`;
+}
+let chartDays = 90;
+function setDays(d) { chartDays = d; render(); }
+
+function viewStock(ticker) {
+  const s = state.snap;
+  const back = `<a class="back" href="#/portfolio">‹ Портфель</a>`;
+  if (!s) return back + `<div class="skel"></div>`;
+  const p = s.positions.find(x => x.ticker === ticker);
+  if (!p) return back + `<div class="empty">Бумага не найдена</div>`;
+  const m = p.metrics, info = DIVIDENDS.items[ticker];
+  let html = back + `<div class="lt"><div><h1>${esc(p.name)}</h1><p>${esc(ticker)}</p></div>${logo(ticker)}</div>` + banner();
+  html += `<div class="card"><div class="num">${price(p.price)}</div><div class="tn ${tone(p.change1d)}">${fpct(p.change1d)} за день</div>
+    <div class="tabs">${[[30, "1М"], [90, "3М"], [250, "1Г"]].map(([d, l]) => `<button class="${chartDays === d ? "on" : ""}" onclick="setDays(${d})">${l}</button>`).join("")}</div>
+    ${chartSvg(p.candles, chartDays)}</div>`;
+  if (p.signal) {
+    html += `<div class="gt">Сигнал</div><div class="card"><div>${pill(p.signal)}</div><div style="margin:8px 0;font-weight:600">${esc(p.signal.short)}</div>
+      <ul class="why">${p.signal.reasons.map(r => `<li>${esc(r)}</li>`).join("")}</ul></div>`;
+  }
+  html += `<div class="gt">Моя позиция</div><div class="grp">
+    <div class="kv"><span>Количество</span><span class="tn">${nf(p.qty, p.qty % 1 ? 2 : 0)} шт</span></div>
+    <div class="kv"><span>Средняя цена</span><span class="tn">${price(p.avgPrice)}</span></div>
+    <div class="kv"><span>Стоимость</span><span class="tn">${rub(p.value)}</span></div>
+    <div class="kv"><span>Прибыль / убыток</span><span class="tn ${tone(p.pl)}">${sRub(p.pl)} (${fpct(p.plPct)})</span></div></div>`;
+  if (m) {
+    html += `<div class="gt">Показатели</div><div class="grp">
+      <div class="kv"><span>За неделю</span><span class="tn ${tone(m.change1w)}">${fpct(m.change1w)}</span></div>
+      <div class="kv"><span>За месяц</span><span class="tn ${tone(m.change1m)}">${fpct(m.change1m)}</span></div>
+      <div class="kv"><span>За год</span><span class="tn ${tone(m.change1y)}">${fpct(m.change1y)}</span></div>
+      <div class="kv"><span>RSI (14)</span><span class="tn">${m.rsi14 == null ? "—" : nf(m.rsi14, 0)}</span></div>
+      <div class="kv"><span>Ниже годового максимума</span><span class="tn">${fpct(m.drawdownFromHigh)}</span></div>
+      <div class="kv col"><span>Диапазон за месяц</span>${rangeBar(m.range1m)}</div>
+      <div class="kv col"><span>Диапазон за год</span>${rangeBar(m.range1y)}</div></div>`;
+  }
+  if (info) {
+    const nd = p.nextDividend;
+    html += `<div class="gt">Дивиденды</div><div class="card"><div class="muted sm">${esc(info.frequency)}</div>`;
+    if (nd) html += `<div style="margin-top:8px"><b>Ближайшая:</b> ${nd.exact ? "отсечка" : "ориентир"} ${ruDate(nd.date)}${nd.amount ? `, ${price(nd.amount)} на акцию (≈ ${rub(nd.amount * p.qty)} на мои)` : ""}</div>`;
+    else html += `<div style="margin-top:8px">Выплат в ближайшее время не ожидается.</div>`;
+    if (info.policy) html += `<div class="muted sm" style="margin-top:8px">${esc(info.policy)}</div>`;
+    html += `</div>`;
+    const pays = (info.payments || []).slice(0, 12);
+    if (pays.length) {
+      html += `<div class="grp">` + pays.map(x => `<div class="kv"><span>${esc(x.period)} · отсечка ${ruDate(x.recordDate)}</span><span class="tn">${price(x.amount)}</span></div>`).join("") + `</div>`;
+    }
+  }
+  return html + stamp();
+}
+
+const MONTHS = ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"];
+function viewDividends() {
+  const pf = loadPortfolio();
+  const today = moscowToday();
+  const ups = pf.holdings.map(h => ({ h, d: estimateNextDividend(h.ticker, today) })).filter(x => x.d).sort((a, b) => a.d.days - b.d.days);
+  const sum = ups.reduce((s, x) => s + (x.d.amount ? x.d.amount * x.h.qty : 0), 0);
+  let html = header("Дивиденды", "Примерные сроки по истории выплат");
+  html += `<div class="card big"><div class="muted">Ожидаемо ближайшие выплаты</div><div class="num">${rub(sum)}</div>
+    <div class="muted sm">Только там, где известна сумма на акцию. Остальное — ориентир по месяцам.</div></div>`;
+  html += group("Ближайшие отсечки", ups.map(({ h, d }) => `<a class="row" href="#/stock/${encodeURIComponent(h.ticker)}">${logo(h.ticker)}
+    <div class="grow"><div class="r1"><span class="nm">${esc(h.name)}</span><span class="tn">${d.amount ? "≈ " + rub(d.amount * h.qty) : "—"}</span></div>
+    <div class="r2"><span class="muted">${d.exact ? "отсечка" : "ориентир"} ${ruDate(d.date)}</span><span class="muted">через ${d.days} дн.</span></div></div></a>`), "Нет данных");
+  const cal = pf.holdings.map(h => {
+    const info = DIVIDENDS.items[h.ticker];
+    if (!info) return "";
+    const wins = activeWindows(info);
+    if (isNoDividend(info) || !wins.length) return `<div class="kv"><span>${esc(h.name)}</span><span class="muted">не платит</span></div>`;
+    const set = new Set(wins.flatMap(w => w.months));
+    return `<div class="kv col"><span>${esc(h.name)}</span><div class="months">${MONTHS.map((m, i) => `<i class="${set.has(i + 1) ? "on" : ""}">${m}</i>`).join("")}</div>
+      <div class="muted sm">${wins.map(w => esc(w.label + ": реестр " + w.recordWindow + ", деньги " + w.payoutWindow)).join("<br>")}</div></div>`;
+  });
+  html += `<div class="gt">Когда обычно платят</div><div class="grp">${cal.join("")}</div>`;
+  html += `<div class="foot">Данные по дивидендам на ${esc(DIVIDENDS.asOf)}. Точные даты объявляют компании — смотри у брокера.</div>`;
+  return html;
+}
+
+/* ===== Редактор портфеля ===== */
+let draft = null;
+function openEditor() { draft = JSON.parse(JSON.stringify(loadPortfolio())); renderEditor(); }
+function closeEditor() { draft = null; document.getElementById("sheet").innerHTML = ""; document.body.classList.remove("lock"); }
+function renderEditor() {
+  document.body.classList.add("lock");
+  const rowsHtml = draft.holdings.map((h, i) => `<div class="erow"><div class="en">${esc(h.name)} <span class="muted">${esc(h.ticker)}</span></div>
+    <label>Шт<input inputmode="decimal" value="${h.qty}" onchange="edit(${i},'qty',this.value)"></label>
+    <label>Средняя ₽<input inputmode="decimal" value="${h.avgPrice}" onchange="edit(${i},'avgPrice',this.value)"></label>
+    <button class="del" onclick="delPos(${i})">✕</button></div>`).join("");
+  document.getElementById("sheet").innerHTML = `<div class="shade" onclick="closeEditor()"></div><div class="panel">
+    <div class="ph"><button class="ibtn txt" onclick="closeEditor()">Отмена</button><b>Портфель</b><button class="ibtn txt strong" onclick="saveEditor()">Готово</button></div>
+    <div class="pb">${rowsHtml}
+      <div class="gt">Свободные рубли</div><div class="erow"><label style="flex:1">₽<input inputmode="decimal" value="${draft.cash}" onchange="draft.cash=num(this.value)"></label></div>
+      <div class="gt">Добавить бумагу</div>
+      <div class="erow wrap"><label>Тикер<input id="nt" placeholder="SBER" autocapitalize="characters"></label><label>Название<input id="nn" placeholder="Сбербанк"></label>
+        <label>Шт<input id="nq" inputmode="decimal"></label><label>Средняя ₽<input id="na" inputmode="decimal"></label>
+        <label class="chk"><input type="checkbox" id="nf"> это фонд (БПИФ)</label>
+        <button class="btn" onclick="addPos()">Добавить</button></div>
+      <button class="btn danger" onclick="resetPf()">Вернуть исходный портфель</button></div></div>`;
+}
+const num = v => { const n = parseFloat(String(v).replace(",", ".").replace(/\s/g, "")); return isFinite(n) && n >= 0 ? n : 0; };
+function edit(i, k, v) { draft.holdings[i][k] = num(v); }
+function delPos(i) { draft.holdings.splice(i, 1); renderEditor(); }
+function addPos() {
+  const t = document.getElementById("nt").value.trim().toUpperCase();
+  const n = document.getElementById("nn").value.trim() || t;
+  const q = num(document.getElementById("nq").value), a = num(document.getElementById("na").value);
+  if (!t || !q) { alert("Укажи тикер и количество"); return; }
+  if (draft.holdings.some(h => h.ticker === t)) { alert("Эта бумага уже есть"); return; }
+  draft.holdings.push({ ticker: t, name: n, qty: q, avgPrice: a, kind: document.getElementById("nf").checked ? "fund" : "share" });
+  renderEditor();
+}
+function resetPf() { if (confirm("Вернуть портфель со скриншотов?")) { draft = JSON.parse(JSON.stringify(DEFAULT_PORTFOLIO)); renderEditor(); } }
+function saveEditor() {
+  draft.holdings = draft.holdings.filter(h => h.qty > 0);
+  savePortfolio(draft); closeEditor(); state.snap = null; refresh();
+}
+
+/* ===== Роутер ===== */
+function render() {
+  const h = location.hash || "#/";
+  let html, tab = "today";
+  if (h.startsWith("#/stock/")) { html = viewStock(decodeURIComponent(h.slice(8))); tab = "portfolio"; }
+  else if (h.startsWith("#/portfolio")) { html = viewPortfolio(); tab = "portfolio"; }
+  else if (h.startsWith("#/dividends")) { html = viewDividends(); tab = "dividends"; }
+  else html = viewToday();
+  const y = window.scrollY;
+  document.getElementById("app").innerHTML = html;
+  document.querySelectorAll(".tab").forEach(t => t.classList.toggle("on", t.dataset.tab === tab));
+  window.scrollTo(0, state._keep ? y : 0);
+}
+let lastHash = "";
+window.addEventListener("hashchange", () => { state._keep = false; render(); });
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden && state.updatedAt && Date.now() - state.updatedAt.getTime() > 5 * 60000) refresh();
+});
+if ("serviceWorker" in navigator && location.protocol.startsWith("http")) { /* офлайн-режим не нужен: данные кэшируются в localStorage */ }
+render();
+refresh();
+
+</script>
+</body>
+</html>
