@@ -1,0 +1,99 @@
+name: Обновление котировок
+
+on:
+  schedule:
+    - cron: "*/15 6-16 * * 1-5"
+    - cron: "30 17 * * 1-5"
+    - cron: "0 9 * * 0,6"
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/quotes.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: quotes
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Скачать котировки
+        run: |
+          cat > fetch-quotes.mjs <<'EOF'
+          import fs from "node:fs";
+
+          const ISS = "https://iss.moex.com/iss";
+          const HOLDINGS = [
+            ["VTBR", "TQBR"], ["ASTR", "TQBR"], ["LSRG", "TQBR"], ["IRAO", "TQBR"], ["X5", "TQBR"],
+            ["LKOH", "TQBR"], ["MDMG", "TQBR"], ["NVTK", "TQBR"], ["PLZL", "TQBR"], ["RAGR", "TQBR"],
+            ["SBER", "TQBR"], ["TATNP", "TQBR"], ["TRNFP", "TQBR"], ["PHOR", "TQBR"], ["YDEX", "TQBR"],
+            ["TGLD", "TQTF"],
+          ];
+
+          async function getJson(url) {
+            let err;
+            for (let i = 0; i < 3; i++) {
+              try {
+                const ctrl = AbortSignal.timeout(20000);
+                const r = await fetch(url, { signal: ctrl, headers: { "user-agent": "portfel-actions" } });
+                if (!r.ok) throw new Error("HTTP " + r.status);
+                return await r.json();
+              } catch (e) { err = e; await new Promise(r => setTimeout(r, 1500 * (i + 1))); }
+            }
+            throw err;
+          }
+          const rows = b => (b ? b.data.map(r => Object.fromEntries(b.columns.map((c, i) => [c, r[i]]))) : []);
+          const daysAgo = d => new Date(Date.now() - d * 864e5).toISOString().slice(0, 10);
+
+          async function candles(ticker, board, index) {
+            const base = index
+              ? `${ISS}/engines/stock/markets/index/securities/${ticker}/candles.json`
+              : `${ISS}/engines/stock/markets/shares/boards/${board}/securities/${ticker}/candles.json`;
+            const all = [];
+            let start = 0;
+            for (let p = 0; p < 3; p++) {
+              const j = await getJson(`${base}?iss.meta=off&interval=24&from=${daysAgo(400)}&start=${start}`);
+              const part = rows(j.candles).map(r => [String(r.begin).slice(0, 10), r.open, r.high, r.low, r.close]);
+              all.push(...part);
+              if (part.length < 500) break;
+              start += part.length;
+            }
+            return all;
+          }
+
+          const out = { at: new Date().toISOString(), quotes: {}, candles: {}, index: [], errors: [] };
+
+          const boards = {};
+          for (const [t, b] of HOLDINGS) (boards[b] = boards[b] || []).push(t);
+          for (const [board, tickers] of Object.entries(boards)) {
+            try {
+              const j = await getJson(`${ISS}/engines/stock/markets/shares/boards/${board}/securities.json?iss.meta=off&iss.only=marketdata,securities&securities=${tickers.join(",")}&marketdata.columns=SECID,LAST,MARKETPRICE,LCURRENTPRICE&securities.columns=SECID,PREVPRICE`);
+              const prev = Object.fromEntries(rows(j.securities).map(r => [r.SECID, r.PREVPRICE]));
+              for (const r of rows(j.marketdata)) out.quotes[r.SECID] = { last: r.LAST ?? r.LCURRENTPRICE ?? r.MARKETPRICE ?? null, prev: prev[r.SECID] ?? null };
+            } catch (e) { out.errors.push(`quotes ${board}: ${e.message}`); }
+          }
+          for (const [t, b] of HOLDINGS) {
+            try { out.candles[t] = await candles(t, b, false); } catch (e) { out.errors.push(`candles ${t}: ${e.message}`); }
+          }
+          try { out.index = await candles("IMOEX", null, true); } catch (e) { out.errors.push(`index: ${e.message}`); }
+
+          const got = Object.keys(out.quotes).length + Object.keys(out.candles).length;
+          console.log("quotes:", Object.keys(out.quotes).length, "candles:", Object.keys(out.candles).length, "errors:", out.errors.length);
+          if (out.errors.length) console.log(out.errors.join("\n"));
+          if (!got) { console.error("Мосбиржа не ответила"); process.exit(1); }
+          fs.writeFileSync("data.json", JSON.stringify(out));
+          EOF
+          node fetch-quotes.mjs
+      - name: Сохранить data.json
+        run: |
+          git config user.name "quotes-bot"
+          git config user.email "quotes-bot@users.noreply.github.com"
+          git add data.json
+          git diff --cached --quiet || (git commit -m "Котировки" && git pull --rebase && git push)
