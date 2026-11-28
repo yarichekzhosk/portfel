@@ -135,7 +135,7 @@ function thumb(blob){return new Promise(res=>{
   v.style.cssText="position:fixed;left:0;top:0;width:2px;height:2px;opacity:0;pointer-events:none";
   const u=URL.createObjectURL(blob);let done=false;
   const fin=r=>{if(done)return;done=true;clearTimeout(tm);v.remove();URL.revokeObjectURL(u);res(r)};
-  const tm=setTimeout(()=>fin(null),6000);
+  const tm=setTimeout(()=>{if(v.readyState>=2)draw();else fin(null)},6000);
   const draw=()=>{try{const w=v.videoWidth,h=v.videoHeight;if(!w||!h)return fin(null);
     const c=document.createElement("canvas");c.width=240;c.height=Math.round(240*h/w);c.getContext("2d").drawImage(v,0,0,c.width,c.height);
     c.toBlob(b=>fin(b),"image/jpeg",0.8)}catch(e){fin(null)}};
@@ -148,7 +148,7 @@ async function loadStore(){
   for(const x of a){
     let ch=false;
     if(!x.len){x.dur=await probe(x.blob);x.len=lenOf(x.dur);ch=true}
-    if(x.thumb===undefined){x.thumb=await thumb(x.blob);ch=true}
+    if(!x.thumb&&x.tv!==2){x.thumb=await thumb(x.blob);x.tv=2;ch=true}
     if(ch)await DB.put(x);
   }
   S.store=a.map(x=>({...x,url:URL.createObjectURL(x.blob),turl:x.thumb?URL.createObjectURL(x.thumb):""}));
@@ -172,11 +172,40 @@ async function decodeAudio(file){
   const s=oc.createBufferSource();s.buffer=ab;s.connect(oc.destination);s.start();
   return (await oc.startRendering()).getChannelData(0);
 }
+/* запасной способ: тихо «проигрываем» видео и записываем звук (в реальном времени) */
+async function captureAudio(file){
+  const v=document.createElement("video");v.playsInline=true;v.setAttribute("playsinline","");v.preload="auto";
+  v.style.cssText="position:fixed;left:0;top:0;width:2px;height:2px;opacity:0;pointer-events:none";
+  const u=URL.createObjectURL(file);document.body.appendChild(v);v.src=u;
+  const cleanup=()=>{try{v.pause()}catch(_){}v.remove();URL.revokeObjectURL(u)};
+  try{
+    await new Promise((res,rej)=>{v.onloadedmetadata=res;v.onerror=()=>rej(new Error("Не удалось открыть видео."))});
+    const AC=window.AudioContext||window.webkitAudioContext,ac=new AC();
+    const src=ac.createMediaElementSource(v),sp=ac.createScriptProcessor(4096,1,1),mute=ac.createGain();
+    mute.gain.value=0;src.connect(sp);sp.connect(mute);mute.connect(ac.destination);
+    const chunks=[];sp.onaudioprocess=e=>{chunks.push(new Float32Array(e.inputBuffer.getChannelData(0)))};
+    const start=async()=>{await ac.resume();await v.play()};
+    setJob({stage:0,pct:0,note:"Читаю звук в реальном времени: это займёт столько же, сколько длится видео."});
+    try{await start()}
+    catch(e){setJob({tap:true});await new Promise((res,rej)=>{S.tapGo=()=>start().then(res,rej)})}
+    await new Promise(res=>{const iv=setInterval(()=>setJob({pct:Math.round(v.currentTime/v.duration*100)||0}),500);
+      v.onended=()=>{clearInterval(iv);res()}});
+    sp.disconnect();src.disconnect();const sr=ac.sampleRate;try{ac.close()}catch(_){}
+    let n=0;chunks.forEach(c=>n+=c.length);const all=new Float32Array(n);let o=0;chunks.forEach(c=>{all.set(c,o);o+=c.length});
+    const r=sr/16000,len=Math.floor(n/r),out=new Float32Array(len);
+    for(let i=0;i<len;i++){const a=Math.floor(i*r),b=Math.min(n,Math.floor((i+1)*r));let s=0;for(let k=a;k<b;k++)s+=all[k];out[i]=s/Math.max(1,b-a)}
+    return out;
+  }finally{cleanup()}
+}
+async function getAudio(file){
+  try{return await decodeAudio(file)}catch(e){return await captureAudio(file)}
+}
 function setJob(p){Object.assign(S.job,p);if(S.step==="work")paintJob()}
 async function transcribe(file){
-  S.words=[];S.chunks=[];setJob({stage:0,pct:0,err:""});
-  const audio=await decodeAudio(file);
-  setJob({stage:1,pct:0});
+  S.words=[];S.chunks=[];setJob({stage:0,pct:0,err:"",tap:false,note:""});
+  const audio=await getAudio(file);
+  if(audio.length<16000*0.5)throw new Error("В видео не нашлось звука.");
+  setJob({stage:1,pct:0,note:"",tap:false});
   const tf=await import(TF_URL);tf.env.allowLocalModels=false;
   const files={};
   const cb=p=>{if(p.status==="progress"&&p.total){files[p.file]=[p.loaded,p.total];
@@ -248,6 +277,7 @@ function vWork(){
   shell("Распознавание");
   return `<div class="group" style="margin-top:12px">${STAGES.map((t,i)=>`<div class="row"><span id="st${i}" style="width:22px;text-align:center"></span><div class="grow" id="sx${i}">${t}</div></div>`).join("")}
   <div class="prog"><i id="pb"></i></div><div class="sub" style="padding:0 16px 14px" id="pt"></div><div class="err" id="pe" style="display:none"></div></div>
+  <button class="btn" id="ptap" data-a="tap" style="display:none;margin-bottom:10px">Нажми, чтобы продолжить</button>
   <button class="btn ghost" id="pcancel" data-a="home" style="display:none">Выбрать другое видео</button>
   <p class="note">Не закрывай приложение, пока идёт распознавание.</p>`;
 }
@@ -255,7 +285,8 @@ function paintJob(){
   const j=S.job;
   STAGES.forEach((_,i)=>{const e=$("#st"+i);if(!e)return;e.textContent=j.stage>i?"✓":j.stage===i?"…":"·";e.style.color=j.stage>i?"var(--good)":"var(--muted)";$("#sx"+i).style.color=j.stage<i?"var(--muted)":""});
   const pb=$("#pb");if(pb)pb.style.width=j.pct+"%";
-  const pt=$("#pt");if(pt)pt.textContent=j.stage===1?`Загрузка модели: ${j.pct}%`:j.stage===2?`Распознано: ${j.pct}%`:"";
+  const pt=$("#pt");if(pt)pt.textContent=j.stage===0?(j.note?`${j.note} ${j.pct}%`:""):j.stage===1?`Загрузка модели: ${j.pct}%`:`Распознано: ${j.pct}%`;
+  const tp=$("#ptap");if(tp)tp.style.display=j.tap?"block":"none";
   const pe=$("#pe"),pc=$("#pcancel");if(pe){pe.style.display=j.err?"block":"none";pe.textContent=j.err}if(pc)pc.style.display=j.err?"block":"none";
 }
 function counts(len){const o={};S.store.filter(v=>v.len===len).forEach(v=>o[v.type]=(o[v.type]||0)+1);return o}
@@ -408,6 +439,7 @@ document.addEventListener("click",async e=>{
   if(a==="tab"){S.tab=v;return render()}
   if(a==="back"){S.step=({ftype:"home",fsrc:"ftype",style:"fsrc",band:"style"})[S.step]||"home";return render()}
   if(a==="home"){S.step="home";return render()}
+  if(a==="tap"){setJob({tap:false});if(S.tapGo)S.tapGo();return}
   if(a==="resume"){S.step="ftype";return render()}
   if(a==="flen"){S.flen=v;S.fid=null;return render()}
   if(a==="ftype"){S.ftype=v;return render()}
