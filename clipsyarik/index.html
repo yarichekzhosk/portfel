@@ -271,6 +271,7 @@ function vHome(){
   return `<div class="label">Видео для верхней части экрана</div>
   <label class="btn" style="margin-bottom:12px;cursor:pointer">Выбрать видео из галереи<input type="file" id="topf" accept="video/*" hidden></label>
   <p class="note" style="margin:6px 16px">Приложение распознает речь и сделает субтитры точно по времени. В первый раз нужно скачать модель распознавания (порядка 100 МБ, нужен интернет), потом она сохранится на телефоне. Видео лучше до 10 минут.</p>
+  <p class="note" style="margin:24px 16px 0;text-align:center">версия 4</p>
   ${S.top&&S.chunks.length?`<div class="group" style="margin-top:18px"><div class="row tap" data-a="resume"><div class="grow"><b>Продолжить с «${esc(S.top.name)}»</b><div class="sub">Субтитры уже распознаны</div></div><span style="color:var(--accent)">›</span></div></div>`:""}`;
 }
 function vWork(){
