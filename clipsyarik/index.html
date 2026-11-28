@@ -129,16 +129,36 @@ const DB={db:null,mem:[],
 function probe(blob){return new Promise(res=>{const v=document.createElement("video");v.preload="metadata";v.muted=true;v.setAttribute("playsinline","");
   const u=URL.createObjectURL(blob);v.onloadedmetadata=()=>{const d=v.duration;URL.revokeObjectURL(u);res(isFinite(d)?d:0)};v.onerror=()=>{URL.revokeObjectURL(u);res(0)};v.src=u})}
 const lenOf=d=>d<=30?"short":"long";
+/* превью-картинка: первый кадр видео (iPhone не рисует кадр у неиграющего видео) */
+function thumb(blob){return new Promise(res=>{
+  const v=document.createElement("video");v.muted=true;v.playsInline=true;v.setAttribute("playsinline","");v.preload="auto";
+  v.style.cssText="position:fixed;left:0;top:0;width:2px;height:2px;opacity:0;pointer-events:none";
+  const u=URL.createObjectURL(blob);let done=false;
+  const fin=r=>{if(done)return;done=true;clearTimeout(tm);v.remove();URL.revokeObjectURL(u);res(r)};
+  const tm=setTimeout(()=>fin(null),6000);
+  const draw=()=>{try{const w=v.videoWidth,h=v.videoHeight;if(!w||!h)return fin(null);
+    const c=document.createElement("canvas");c.width=240;c.height=Math.round(240*h/w);c.getContext("2d").drawImage(v,0,0,c.width,c.height);
+    c.toBlob(b=>fin(b),"image/jpeg",0.8)}catch(e){fin(null)}};
+  v.onloadedmetadata=()=>{v.currentTime=Math.min(1,(v.duration||1)/2)};
+  v.onseeked=draw;v.onerror=()=>fin(null);
+  document.body.appendChild(v);v.src=u;v.load();
+})}
 async function loadStore(){
   const a=await DB.all();
-  for(const x of a){if(!x.len){x.dur=await probe(x.blob);x.len=lenOf(x.dur);await DB.put(x)}}
-  S.store=a.map(x=>({...x,url:URL.createObjectURL(x.blob)}));
+  for(const x of a){
+    let ch=false;
+    if(!x.len){x.dur=await probe(x.blob);x.len=lenOf(x.dur);ch=true}
+    if(x.thumb===undefined){x.thumb=await thumb(x.blob);ch=true}
+    if(ch)await DB.put(x);
+  }
+  S.store=a.map(x=>({...x,url:URL.createObjectURL(x.blob),turl:x.thumb?URL.createObjectURL(x.thumb):""}));
 }
 async function addFiles(files,type){
-  for(const f of files){const dur=await probe(f);
-    await DB.put({id:"v"+Date.now()+Math.random().toString(36).slice(2,6),name:f.name,type,len:lenOf(dur),dur,blob:f})}
+  for(const f of files){const dur=await probe(f),th=await thumb(f);
+    await DB.put({id:"v"+Date.now()+Math.random().toString(36).slice(2,6),name:f.name,type,len:lenOf(dur),dur,thumb:th,blob:f})}
   await loadStore();
 }
+const tileImg=v=>v.turl?`<img src="${v.turl}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;pointer-events:none">`:`<div class="ph" style="font-size:11px">${esc(v.name)}</div>`;
 
 /* ---------- распознавание речи (прямо в телефоне) ---------- */
 async function decodeAudio(file){
@@ -252,7 +272,7 @@ function vFsrc(){
   const list=S.store.filter(v=>v.type===S.ftype&&v.len===S.flen);
   const len=LENS.find(l=>l[0]===S.flen);
   return `<div class="label">${esc(S.ftype)} · ${len[1].toLowerCase()} (${len[2]})</div>
-  ${list.length?`<div class="grid">${list.map(v=>`<div class="tile ${S.fid===v.id?"sel":""}" data-a="fpick" data-v="${v.id}"><video src="${v.url}#t=0.001" muted playsinline preload="metadata"></video><span>${esc(v.name)}</span></div>`).join("")}</div>`
+  ${list.length?`<div class="grid">${list.map(v=>`<div class="tile ${S.fid===v.id?"sel":""}" data-a="fpick" data-v="${v.id}">${tileImg(v)}<span>${esc(v.name)}</span></div>`).join("")}</div>`
    :`<div class="empty">В хранилище нет таких видео.<br>Загрузи первое кнопкой ниже.</div>`}
   <label class="btn ghost" style="margin-bottom:10px;cursor:pointer">Загрузить сюда видео<input type="file" id="up2" accept="video/*" multiple hidden></label>
   <button class="btn" data-a="toStyle" ${S.fid&&list.some(v=>v.id===S.fid)?"":"disabled"}>Дальше</button>`;
@@ -306,7 +326,7 @@ function vStore(){
   const list=S.store.filter(v=>v.len===S.sLen&&(S.sType==="Все"||v.type===S.sType));
   return `<div class="seg">${LENS.map(([k,n,r])=>`<button class="${S.sLen===k?"on":""}" data-a="slen" data-v="${k}">${n} · ${r} (${cnt[k]})</button>`).join("")}</div>
   <div class="group"><div class="row"><div class="grow">Категория</div><select id="flt">${["Все",...TYPES].map(t=>`<option ${S.sType===t?"selected":""}>${esc(t)}</option>`).join("")}</select></div></div>
-  ${list.length?`<div class="grid">${list.map(v=>`<div class="tile"><video src="${v.url}#t=0.001" muted playsinline preload="metadata"></video><span>${esc(v.type)}</span><button class="x" data-a="del" data-v="${v.id}" aria-label="Удалить">✕</button></div>`).join("")}</div>`
+  ${list.length?`<div class="grid">${list.map(v=>`<div class="tile">${tileImg(v)}<span>${esc(v.type)}</span><button class="x" data-a="del" data-v="${v.id}" aria-label="Удалить">✕</button></div>`).join("")}</div>`
    :`<div class="empty">Здесь пока пусто.</div>`}
   <div class="label">Добавить видео</div>
   <div class="group"><div class="row"><div class="grow">Категория новых видео</div><select id="uptype">${TYPES.map(t=>`<option ${S.upType===t?"selected":""}>${esc(t)}</option>`).join("")}</select></div></div>
