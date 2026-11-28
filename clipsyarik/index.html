@@ -15,12 +15,12 @@
 /* Layout idea: iOS-style grouped lists, one calm accent, a single column capped at phone width. */
 :root{
   --bg:#f2f2f7; --card:#ffffff; --text:#1c1c1e; --muted:#8a8a8e; --line:#e5e5ea;
-  --accent:#3b6fd4; --accent-ink:#ffffff; --good:#2f9e63;
+  --accent:#3b6fd4; --accent-ink:#ffffff; --good:#2f9e63; --bad:#c2410c;
   --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#000; --card:#1c1c1e; --text:#f2f2f7; --muted:#8e8e93; --line:#2c2c2e; --accent:#6b97ec; --accent-ink:#0b1220; --good:#4cc38a; color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#000; --card:#1c1c1e; --text:#f2f2f7; --muted:#8e8e93; --line:#2c2c2e; --accent:#6b97ec; --accent-ink:#0b1220; --good:#4cc38a; color-scheme:dark}
+  --bg:#000; --card:#1c1c1e; --text:#f2f2f7; --muted:#8e8e93; --line:#2c2c2e; --accent:#6b97ec; --accent-ink:#0b1220; --good:#4cc38a; --bad:#f08a5d; color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#000; --card:#1c1c1e; --text:#f2f2f7; --muted:#8e8e93; --line:#2c2c2e; --accent:#6b97ec; --accent-ink:#0b1220; --good:#4cc38a; --bad:#f08a5d; color-scheme:dark}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;margin:0}
 body{background:var(--bg);color:var(--text);font:16px/1.4 var(--font);display:flex;justify-content:center}
@@ -43,41 +43,43 @@ nav svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.7;st
 .note{color:var(--muted);font-size:13px;margin:-8px 16px 18px}
 input[type=text],input[type=url],textarea{width:100%;border:0;background:none;font:inherit;color:var(--text);outline:none;padding:0}
 input::placeholder{color:var(--muted)}
-.btn{width:100%;border:0;border-radius:14px;background:var(--accent);color:var(--accent-ink);font:inherit;font-weight:600;padding:15px;cursor:pointer}
+.btn{display:block;width:100%;border:0;border-radius:14px;background:var(--accent);color:var(--accent-ink);font:inherit;font-weight:600;padding:15px;cursor:pointer;text-align:center;text-decoration:none}
 .btn.ghost{background:var(--card);color:var(--accent)}
 .btn[disabled]{opacity:.4;cursor:default}
 .btn+.btn{margin-top:10px}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.score{font-variant-numeric:tabular-nums;font-weight:700;font-size:20px;min-width:44px;text-align:right}
-.rank{width:26px;height:26px;border-radius:50%;background:var(--bg);display:grid;place-items:center;font-size:13px;font-weight:600;color:var(--muted);flex:none}
-.thumb{width:54px;height:72px;border-radius:8px;flex:none;position:relative;overflow:hidden}
-.bar{height:4px;border-radius:2px;background:var(--line);overflow:hidden;margin-top:6px}
-.bar i{display:block;height:100%;background:var(--accent)}
 .radio{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--line);flex:none;display:grid;place-items:center}
 .sel .radio{border-color:var(--accent);background:var(--accent)}
 .sel .radio::after{content:"";width:8px;height:8px;border-radius:50%;background:var(--accent-ink)}
 .seg{display:flex;background:var(--line);border-radius:10px;padding:2px;margin:0 0 16px}
-.seg button{flex:1;border:0;background:none;font:inherit;font-size:14px;padding:7px;border-radius:8px;color:var(--text);cursor:pointer}
+.seg button{flex:1;border:0;background:none;font:inherit;font-size:14px;padding:7px 4px;border-radius:8px;color:var(--text);cursor:pointer}
 .seg button.on{background:var(--card);box-shadow:0 1px 3px rgba(0,0,0,.15);font-weight:600}
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px}
 .tile{aspect-ratio:9/14;border-radius:10px;background:var(--card);overflow:hidden;position:relative;cursor:pointer;border:2px solid transparent}
 .tile.sel{border-color:var(--accent)}
-.tile video{width:100%;height:100%;object-fit:cover;display:block}
-.tile span{position:absolute;left:0;right:0;bottom:0;padding:14px 6px 4px;font-size:11px;color:#fff;background:linear-gradient(transparent,rgba(0,0,0,.6));overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tile video{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
+.tile span{position:absolute;left:0;right:0;bottom:0;padding:14px 6px 4px;font-size:11px;color:#fff;background:linear-gradient(transparent,rgba(0,0,0,.65));overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tile .x{position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;border:0;background:rgba(0,0,0,.5);color:#fff;font-size:13px;cursor:pointer}
 .swatches{display:flex;gap:12px;padding:14px 16px;flex-wrap:wrap}
 .sw{width:34px;height:34px;border-radius:50%;border:2px solid var(--card);box-shadow:0 0 0 1px var(--line);cursor:pointer;padding:0}
 .sw.on{box-shadow:0 0 0 2px var(--accent)}
 select{font:inherit;color:var(--text);background:none;border:0;max-width:60%}
-.empty{text-align:center;color:var(--muted);padding:48px 24px}
-/* 9:16 preview */
-.phone{width:min(62%,250px);aspect-ratio:9/16;margin:4px auto 18px;border-radius:18px;overflow:hidden;background:#000;position:relative;box-shadow:0 8px 30px rgba(0,0,0,.25)}
-.phone .top,.phone .bot{position:absolute;left:0;right:0;height:42%;overflow:hidden}
+.empty{text-align:center;color:var(--muted);padding:40px 24px}
+.err{color:var(--bad);padding:12px 16px;font-size:14px;word-break:break-word}
+.prog{height:6px;border-radius:3px;background:var(--line);overflow:hidden;margin:10px 16px 14px}
+.prog i{display:block;height:100%;background:var(--accent);width:0;transition:width .25s}
+/* 9:16 preview: top video, subtitles in the middle, bottom video */
+.phone{width:min(62%,250px);aspect-ratio:9/16;margin:4px auto 6px;border-radius:18px;overflow:hidden;background:#000;position:relative;box-shadow:0 8px 30px rgba(0,0,0,.25);container-type:inline-size;cursor:pointer}
+.phone .top,.phone .bot{position:absolute;left:0;right:0;height:50%;overflow:hidden}
 .phone .top{top:0}.phone .bot{bottom:0}
-.phone video{width:100%;height:100%;object-fit:cover}
-.ph{width:100%;height:100%;display:grid;place-items:center;color:rgba(255,255,255,.8);font-size:12px;text-align:center;padding:10px}
-.cap{position:absolute;left:6%;right:6%;top:50%;transform:translateY(-50%);text-align:center;font-size:22px;line-height:1.1;text-transform:uppercase;text-shadow:0 2px 0 rgba(0,0,0,.55),0 0 8px rgba(0,0,0,.6);word-break:break-word}
-.chat{background:var(--card);border-radius:14px;padding:12px;margin-bottom:12px;max-height:240px;overflow-y:auto}
+.phone video{width:100%;height:100%;object-fit:cover;display:block}
+.ph{width:100%;height:100%;display:grid;place-items:center;color:rgba(255,255,255,.7);font-size:12px;text-align:center;padding:10px;background:#26262a}
+.band{position:absolute;left:0;right:0;top:43%;height:14%;background:#000}
+.cap{position:absolute;left:6%;right:6%;top:50%;transform:translateY(-50%);text-align:center;font-size:9cqw;line-height:1.1;text-transform:uppercase;word-break:break-word;pointer-events:none}
+.cap.shadow{text-shadow:0 2px 0 rgba(0,0,0,.6),0 0 8px rgba(0,0,0,.6)}
+.hint{position:absolute;left:0;right:0;bottom:8px;text-align:center;color:#fff;font-size:11px;pointer-events:none;text-shadow:0 1px 3px #000}
+.tapnote{text-align:center;color:var(--muted);font-size:12px;margin:0 0 18px}
+.chat{background:var(--card);border-radius:14px;padding:12px;margin-bottom:12px;max-height:200px;overflow-y:auto}
 .msg{padding:8px 12px;border-radius:16px;margin:0 0 6px;max-width:85%;font-size:15px}
 .msg.me{background:var(--accent);color:var(--accent-ink);margin-left:auto}
 .msg.ai{background:var(--bg)}
@@ -86,8 +88,8 @@ select{font:inherit;color:var(--text);background:none;border:0;max-width:60%}
 .chunks{display:flex;flex-wrap:wrap;gap:6px;padding:12px 16px}
 .chunk{border:1px solid var(--line);border-radius:8px;padding:4px 9px;font-size:14px;background:var(--bg);color:var(--text);font-family:inherit;cursor:pointer}
 .chunk:hover{border-color:var(--accent)}
-.demo{font-size:12px;color:var(--muted);text-align:center;padding:4px 16px 0}
-@media (prefers-reduced-motion:no-preference){main>*{animation:in .22s ease-out}@keyframes in{from{opacity:.0;transform:translateY(6px)}}}
+video.res{width:min(70%,280px);aspect-ratio:9/16;display:block;margin:4px auto 18px;border-radius:18px;background:#000}
+@media (prefers-reduced-motion:no-preference){main>*{animation:in .22s ease-out}@keyframes in{from{opacity:0;transform:translateY(6px)}}}
 </style>
 </head>
 <body>
@@ -98,206 +100,358 @@ select{font:inherit;color:var(--text);background:none;border:0;max-width:60%}
 </div>
 <script>
 "use strict";
-/* ---------- данные и состояние ---------- */
-const TYPES=["Гонки GTA 5","Резка мыла","Готовка блюд","Чистка ковров","Гонка кубиков","Слайм и песок","Другое"];
+/* ---------- настройки ---------- */
+const TF_URL="https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.5.2";
+const ASR_MODEL="onnx-community/whisper-base_timestamped";
+const TYPES=["Гонки GTA 5","Резка мыла","Готовка блюд","Чистка ковров","Гонка кубиков","Шарик и кольца","Геймплей (Doodle Jump и т.п.)","Слайм и песок","Другое"];
+const LENS=[["short","Короткие","0–30 сек"],["long","Длинные","30–90 сек"]];
 const COLORS=[["#ffffff","Белый"],["#f5e27a","Мягкий жёлтый"],["#9be3c0","Мята"],["#8ec5ff","Небесный"],["#ffb38a","Персик"],["#f4a6c0","Пудра"]];
-const FONTS=[["Montserrat","Montserrat"],["Oswald","Oswald"],["Rubik","Rubik"],["Russo One","Russo One"],["Unbounded","Unbounded"]];
-const SAMPLE="Короче я сидел вчера и думал что это вообще невозможно но потом всё изменилось и я понял главное никогда не сдавайся даже когда никто не верит";
-const MOCK=[
- {t:"Момент, когда всё пошло не так",s:9.7,d:"0:38",why:"Резкий поворот в первые 3 секунды, эмоциональная речь"},
- {t:"Неожиданное признание",s:9.2,d:"0:52",why:"Сильный хук, цитируемая фраза"},
- {t:"Главный совет за весь стрим",s:8.8,d:"0:44",why:"Практическая польза, высокая досматриваемость"},
- {t:"Реакция на сюрприз",s:8.1,d:"0:29",why:"Живая реакция, короткая длина"},
- {t:"Смешной эпизод с чатом",s:7.6,d:"0:35",why:"Юмор, но слабее начало"},
- {t:"Рассказ про первый опыт",s:6.9,d:"1:05",why:"Длинновато, середина провисает"}
-];
-const S={tab:"clips",step:"home",url:"",clips:[],picked:null,ftype:null,fsrc:{kind:"storage",id:null},srcMode:"storage",
-  color:COLORS[0][0],font:FONTS[0][0],chunks:[],chat:[{r:"ai",t:"Проверь субтитры выше. Если что-то распознано неверно, напиши, например: «замени сидел на сидела»."}],
-  store:[],filter:"Все",upType:TYPES[0],prog:0,deferred:[]};
-try{S.deferred=JSON.parse(localStorage.getItem("cy_def")||"[]")}catch(e){}
+const FONTS=["Montserrat","Oswald","Rubik","Russo One","Unbounded"];
+const FW={"Montserrat":800,"Oswald":600,"Rubik":700,"Russo One":400,"Unbounded":700};
+const STAGES=["Читаю звук из видео","Загружаю модель распознавания","Распознаю речь"];
+
+const S={tab:"make",step:"home",top:null,words:[],chunks:[],ftype:null,flen:"short",fid:null,
+  color:COLORS[0][0],font:FONTS[0],band:null,
+  chat:[{r:"ai",t:"Проверь субтитры. Если слово распознано неверно, напиши, например: «замени сидел на сидела»."}],
+  store:[],sLen:"short",sType:"Все",upType:TYPES[0],job:{stage:0,pct:0,err:""},rerr:"",result:null};
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
-/* ---------- хранилище видео (IndexedDB, с запасным вариантом в памяти) ---------- */
+/* ---------- хранилище видео: копия лежит внутри приложения ---------- */
 const DB={db:null,mem:[],
   open(){return new Promise(res=>{try{const r=indexedDB.open("clipsyarik",1);
     r.onupgradeneeded=()=>r.result.createObjectStore("v",{keyPath:"id"});
     r.onsuccess=()=>{this.db=r.result;res()};r.onerror=()=>res()}catch(e){res()}})},
   tx(m){return this.db.transaction("v",m).objectStore("v")},
   all(){return new Promise(res=>{if(!this.db)return res(this.mem);const q=this.tx("readonly").getAll();q.onsuccess=()=>res(q.result);q.onerror=()=>res(this.mem)})},
-  put(x){return new Promise(res=>{if(!this.db){this.mem.push(x);return res()}const q=this.tx("readwrite").put(x);q.onsuccess=q.onerror=()=>res()})},
+  put(x){return new Promise(res=>{if(!this.db){this.mem=this.mem.filter(y=>y.id!==x.id);this.mem.push(x);return res()}const q=this.tx("readwrite").put(x);q.onsuccess=q.onerror=()=>res()})},
   del(id){return new Promise(res=>{if(!this.db){this.mem=this.mem.filter(x=>x.id!==id);return res()}const q=this.tx("readwrite").delete(id);q.onsuccess=q.onerror=()=>res()})}};
-async function loadStore(){const a=await DB.all();S.store=a.map(x=>({...x,url:URL.createObjectURL(x.blob)}))}
+function probe(blob){return new Promise(res=>{const v=document.createElement("video");v.preload="metadata";v.muted=true;v.setAttribute("playsinline","");
+  const u=URL.createObjectURL(blob);v.onloadedmetadata=()=>{const d=v.duration;URL.revokeObjectURL(u);res(isFinite(d)?d:0)};v.onerror=()=>{URL.revokeObjectURL(u);res(0)};v.src=u})}
+const lenOf=d=>d<=30?"short":"long";
+async function loadStore(){
+  const a=await DB.all();
+  for(const x of a){if(!x.len){x.dur=await probe(x.blob);x.len=lenOf(x.dur);await DB.put(x)}}
+  S.store=a.map(x=>({...x,url:URL.createObjectURL(x.blob)}));
+}
+async function addFiles(files,type){
+  for(const f of files){const dur=await probe(f);
+    await DB.put({id:"v"+Date.now()+Math.random().toString(36).slice(2,6),name:f.name,type,len:lenOf(dur),dur,blob:f})}
+  await loadStore();
+}
+
+/* ---------- распознавание речи (прямо в телефоне) ---------- */
+async function decodeAudio(file){
+  const buf=await file.arrayBuffer();
+  const AC=window.AudioContext||window.webkitAudioContext;const ac=new AC();
+  let ab;
+  try{ab=await new Promise((res,rej)=>{const p=ac.decodeAudioData(buf,res,rej);if(p&&p.catch)p.catch(rej)})}
+  catch(e){try{ac.close()}catch(_){}throw new Error("Не удалось прочитать звук. Возможно, в видео нет звука или формат не поддерживается.")}
+  try{ac.close()}catch(_){}
+  const oc=new OfflineAudioContext(1,Math.max(1,Math.ceil(ab.duration*16000)),16000);
+  const s=oc.createBufferSource();s.buffer=ab;s.connect(oc.destination);s.start();
+  return (await oc.startRendering()).getChannelData(0);
+}
+function setJob(p){Object.assign(S.job,p);if(S.step==="work")paintJob()}
+async function transcribe(file){
+  S.words=[];S.chunks=[];setJob({stage:0,pct:0,err:""});
+  const audio=await decodeAudio(file);
+  setJob({stage:1,pct:0});
+  const tf=await import(TF_URL);tf.env.allowLocalModels=false;
+  const files={};
+  const cb=p=>{if(p.status==="progress"&&p.total){files[p.file]=[p.loaded,p.total];
+    let l=0,t=0;for(const k in files){l+=files[k][0];t+=files[k][1]}setJob({pct:Math.round(l/t*100)})}};
+  const tries=[{encoder_model:"fp32",decoder_model_merged:"q8"},"q8",{encoder_model:"fp32",decoder_model_merged:"fp32"}];
+  let asr=null,last=null;
+  for(const dtype of tries){try{asr=await tf.pipeline("automatic-speech-recognition",ASR_MODEL,{dtype,device:"wasm",progress_callback:cb});break}catch(e){last=e;for(const k in files)delete files[k]}}
+  if(!asr)throw new Error("Не удалось загрузить модель распознавания: "+(last&&last.message||last));
+  setJob({stage:2,pct:0});
+  const SR=16000,WIN=28*SR,words=[];
+  for(let o=0;o<audio.length;o+=WIN){
+    const part=audio.slice(o,Math.min(o+WIN,audio.length));
+    if(part.length>=SR*0.5){
+      const out=await asr(part,{language:"russian",task:"transcribe",return_timestamps:"word"});
+      for(const c of out.chunks||[]){const w=(c.text||"").trim();if(!w)continue;
+        const s=(c.timestamp[0]??0)+o/SR;const e=c.timestamp[1]==null?s+0.4:c.timestamp[1]+o/SR;
+        words.push({w,s,e:Math.max(e,s+0.1)})}
+    }
+    setJob({pct:Math.min(100,Math.round((o+WIN)/audio.length*100))});
+  }
+  try{await asr.dispose()}catch(_){}
+  S.words=words;S.chunks=group(words);
+}
+/* слова → подписи по 1–3 слова с настоящими таймингами */
+function group(words){
+  const out=[];let cur=[];
+  const flush=()=>{if(cur.length){out.push({text:cur.map(x=>x.w).join(" "),s:cur[0].s,e:cur[cur.length-1].e});cur=[]}};
+  words.forEach((w,i)=>{
+    const prev=cur[cur.length-1];
+    if(prev&&w.s-prev.e>0.6)flush();
+    cur.push(w);
+    const chars=cur.reduce((n,x)=>n+x.w.length,0);
+    const next=words[i+1];
+    if(cur.length>=3||/[.!?…,;:]$/.test(w.w)||(cur.length>=2&&chars>=16)||(next&&cur.length>=2&&chars+next.w.length>20))flush();
+  });
+  flush();
+  out.forEach((c,i)=>{const n=out[i+1];c.e=n&&n.s-c.e<0.35?n.s:c.e+0.12});
+  return out;
+}
+function chunkAt(t){for(let i=0;i<S.chunks.length;i++){const c=S.chunks[i];if(t>=c.s&&t<c.e)return i}return -1}
 
 /* ---------- каркас ---------- */
 const ICON={
- clips:'<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M10 9.5v5l4.5-2.5z"/></svg>',
- store:'<svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>',
- later:'<svg viewBox="0 0 24 24"><path d="M6 4h12v17l-6-4-6 4z"/></svg>'};
+ make:'<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M10 9.5v5l4.5-2.5z"/></svg>',
+ store:'<svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>'};
 function shell(title,back){
-  $("#hd").innerHTML=(back?`<button class="back" data-a="back">‹ Назад</button><h1 style="font-size:17px;text-align:center;flex:2">${esc(title)}</h1><span style="flex:1"></span>`:`<h1>${esc(title)}</h1>`);
-  $("#nv").innerHTML=[["clips","Клипы"],["store","Хранилище"],["later","Отложенные"]].map(([k,n])=>`<button class="${S.tab===k?"on":""}" data-a="tab" data-v="${k}">${ICON[k]}<span>${n}</span></button>`).join("");
+  $("#hd").innerHTML=back?`<button class="back" data-a="back">‹ Назад</button><h1 style="font-size:17px;text-align:center;flex:2">${esc(title)}</h1><span style="flex:1"></span>`:`<h1>${esc(title)}</h1>`;
+  $("#nv").innerHTML=[["make","Создать"],["store","Хранилище"]].map(([k,n])=>`<button class="${S.tab===k?"on":""}" data-a="tab" data-v="${k}">${ICON[k]}<span>${n}</span></button>`).join("");
 }
+let pvTok=0;
 function render(){
+  pvTok++;
   const m=$("#mn");let h="";
   if(S.tab==="store")h=vStore();
-  else if(S.tab==="later")h=vLater();
-  else h=({home:vHome,work:vWork,rank:vRank,ftype:vFtype,fsrc:vFsrc,style:vStyle,done:vDone})[S.step]();
+  else h=({home:vHome,work:vWork,ftype:vFtype,fsrc:vFsrc,style:vStyle,band:vBand,render:vRender})[S.step]();
   m.innerHTML=h;m.scrollTop=0;
-  if(S.step==="style"||S.step==="done")startCaps();
+  if(S.tab==="make"&&(S.step==="style"||S.step==="band"))pvStart();
 }
 
 /* ---------- экраны ---------- */
 function vHome(){
   shell("ClipsYarik");
-  return `<div class="label">Ссылка на видео или стрим</div>
-  <div class="group"><div class="row"><input id="url" type="url" inputmode="url" placeholder="https://youtube.com/…" value="${esc(S.url)}" autocomplete="off"></div></div>
-  <button class="btn" data-a="analyze">Найти лучшие моменты</button>
-  <p class="note" style="margin:14px 16px">Приложение распознает речь, выберет самые сильные фрагменты и оценит шанс на популярность.</p>
-  <p class="demo">Демо: показаны примерные данные. Реальная обработка видео подключается отдельным сервером.</p>`;
+  return `<div class="label">Видео для верхней части экрана</div>
+  <label class="btn" style="margin-bottom:12px;cursor:pointer">Выбрать видео из галереи<input type="file" id="topf" accept="video/*" hidden></label>
+  <p class="note" style="margin:6px 16px">Приложение распознает речь и сделает субтитры точно по времени. В первый раз нужно скачать модель распознавания (порядка 100 МБ, нужен интернет), потом она сохранится на телефоне. Видео лучше до 10 минут.</p>
+  ${S.top&&S.chunks.length?`<div class="group" style="margin-top:18px"><div class="row tap" data-a="resume"><div class="grow"><b>Продолжить с «${esc(S.top.name)}»</b><div class="sub">Субтитры уже распознаны</div></div><span style="color:var(--accent)">›</span></div></div>`:""}`;
 }
-const STEPS=["Загружаю видео","Распознаю речь","Ищу сильные моменты","Оцениваю шанс на популярность"];
 function vWork(){
-  shell("Анализ");
-  return `<div class="group" style="margin-top:12px">${STEPS.map((t,i)=>`<div class="row"><span style="width:22px;text-align:center;color:${S.prog>i?"var(--good)":"var(--muted)"}">${S.prog>i?"✓":S.prog===i?"…":"·"}</span><div class="grow" style="${S.prog<i?"color:var(--muted)":""}">${t}</div></div>`).join("")}</div>`;
+  shell("Распознавание");
+  return `<div class="group" style="margin-top:12px">${STAGES.map((t,i)=>`<div class="row"><span id="st${i}" style="width:22px;text-align:center"></span><div class="grow" id="sx${i}">${t}</div></div>`).join("")}
+  <div class="prog"><i id="pb"></i></div><div class="sub" style="padding:0 16px 14px" id="pt"></div><div class="err" id="pe" style="display:none"></div></div>
+  <button class="btn ghost" id="pcancel" data-a="home" style="display:none">Выбрать другое видео</button>
+  <p class="note">Не закрывай приложение, пока идёт распознавание.</p>`;
 }
-function grad(i){const a=(i*47+200)%360;return `linear-gradient(160deg,hsl(${a} 25% 40%),hsl(${(a+40)%360} 30% 22%))`}
-function vRank(){
-  shell("Лучшие моменты",true);
-  return `<p class="note" style="margin:6px 16px 12px">Отсортировано по оценке популярности (0–10).</p>
-  <div class="group">${S.clips.map((c,i)=>`<div class="row tap" data-a="pick" data-v="${i}">
-    <div class="rank">${i+1}</div><div class="thumb" style="background:${grad(i)}"></div>
-    <div class="grow"><div style="font-weight:600">${esc(c.t)}</div><div class="sub">${c.d} · ${esc(c.why)}</div><div class="bar"><i style="width:${c.s*10}%"></i></div></div>
-    <div class="score">${c.s.toFixed(1)}</div></div>`).join("")}</div>
-  <p class="note">Остальные лучшие варианты не пропадут: после монтажа они попадут в «Отложенные».</p>`;
+function paintJob(){
+  const j=S.job;
+  STAGES.forEach((_,i)=>{const e=$("#st"+i);if(!e)return;e.textContent=j.stage>i?"✓":j.stage===i?"…":"·";e.style.color=j.stage>i?"var(--good)":"var(--muted)";$("#sx"+i).style.color=j.stage<i?"var(--muted)":""});
+  const pb=$("#pb");if(pb)pb.style.width=j.pct+"%";
+  const pt=$("#pt");if(pt)pt.textContent=j.stage===1?`Загрузка модели: ${j.pct}%`:j.stage===2?`Распознано: ${j.pct}%`:"";
+  const pe=$("#pe"),pc=$("#pcancel");if(pe){pe.style.display=j.err?"block":"none";pe.textContent=j.err}if(pc)pc.style.display=j.err?"block":"none";
 }
+function counts(len){const o={};S.store.filter(v=>v.len===len).forEach(v=>o[v.type]=(o[v.type]||0)+1);return o}
+function lenSeg(cur,act){return `<div class="seg">${LENS.map(([k,n,r])=>`<button class="${cur===k?"on":""}" data-a="${act}" data-v="${k}">${n} · ${r}</button>`).join("")}</div>`}
 function vFtype(){
   shell("Что внизу?",true);
-  return `<div class="label">Какой тип видео подойдёт к этому фрагменту?</div>
-  <div class="group">${TYPES.map(t=>`<div class="row tap ${S.ftype===t?"sel":""}" data-a="ftype" data-v="${esc(t)}"><div class="grow">${esc(t)}</div><div class="radio"></div></div>`).join("")}</div>
+  const c=counts(S.flen);
+  return `<div class="label">Какой тип видео подойдёт к этому фрагменту?</div>${lenSeg(S.flen,"flen")}
+  <div class="group">${TYPES.map(t=>`<div class="row tap ${S.ftype===t?"sel":""}" data-a="ftype" data-v="${esc(t)}"><div class="grow">${esc(t)}</div><span class="sub">${c[t]||0}</span><div class="radio"></div></div>`).join("")}</div>
   <button class="btn" data-a="toSrc" ${S.ftype?"":"disabled"}>Дальше</button>`;
 }
 function vFsrc(){
   shell("Видео для низа",true);
-  const list=S.store.filter(v=>v.type===S.ftype);
-  const own=S.srcMode==="storage"?
-   (list.length?`<div class="grid">${list.map(v=>`<div class="tile ${S.fsrc.id===v.id?"sel":""}" data-a="fpick" data-v="${v.id}"><video src="${v.url}" muted playsinline preload="metadata"></video><span>${esc(v.name)}</span></div>`).join("")}</div>`
-   :`<div class="empty">В хранилище нет видео типа «${esc(S.ftype)}».<br>Загрузи их во вкладке «Хранилище» или вставь ссылку.</div>`)
-   :`<div class="group"><div class="row"><input id="flink" type="url" inputmode="url" placeholder="Ссылка на ролик" value="${esc(S.fsrc.url||"")}" autocomplete="off"></div></div>`;
-  const ok=S.srcMode==="storage"?S.fsrc.kind==="storage"&&S.fsrc.id:!!(S.fsrc.url);
-  return `<div class="seg"><button class="${S.srcMode==="storage"?"on":""}" data-a="smode" data-v="storage">Из хранилища</button><button class="${S.srcMode==="link"?"on":""}" data-a="smode" data-v="link">По ссылке</button></div>${own}
-  <button class="btn" data-a="toStyle" ${ok?"":"disabled"}>Дальше</button>`;
+  const list=S.store.filter(v=>v.type===S.ftype&&v.len===S.flen);
+  const len=LENS.find(l=>l[0]===S.flen);
+  return `<div class="label">${esc(S.ftype)} · ${len[1].toLowerCase()} (${len[2]})</div>
+  ${list.length?`<div class="grid">${list.map(v=>`<div class="tile ${S.fid===v.id?"sel":""}" data-a="fpick" data-v="${v.id}"><video src="${v.url}#t=0.001" muted playsinline preload="metadata"></video><span>${esc(v.name)}</span></div>`).join("")}</div>`
+   :`<div class="empty">В хранилище нет таких видео.<br>Загрузи первое кнопкой ниже.</div>`}
+  <label class="btn ghost" style="margin-bottom:10px;cursor:pointer">Загрузить сюда видео<input type="file" id="up2" accept="video/*" multiple hidden></label>
+  <button class="btn" data-a="toStyle" ${S.fid&&list.some(v=>v.id===S.fid)?"":"disabled"}>Дальше</button>`;
 }
-function phone(){
-  const bot=S.fsrc.kind==="storage"&&S.fsrc.id?S.store.find(v=>v.id===S.fsrc.id):null;
-  const clip=S.clips[S.picked]||MOCK[0];
-  return `<div class="phone"><div class="top"><div class="ph" style="background:${grad(S.picked||0)}">${esc(clip.t)}</div></div>
-   <div class="cap" id="cap" style="color:${S.color};font-family:'${S.font}',sans-serif"></div>
-   <div class="bot">${bot?`<video src="${bot.url}" autoplay muted loop playsinline></video>`:`<div class="ph" style="background:#26262a">${S.fsrc.url?"Видео по ссылке":esc(S.ftype||"")}</div>`}</div></div>`;
+function phoneHTML(){
+  const bot=S.store.find(v=>v.id===S.fid);
+  return `<div class="phone" id="phone" data-a="pv"><div class="top"><video id="pvTop" src="${S.top.url}#t=0.001" playsinline preload="auto"></video></div>
+  <div class="bot">${bot?`<video id="pvBot" src="${bot.url}#t=0.001" muted loop playsinline preload="auto"></video>`:`<div class="ph">нет видео</div>`}</div>
+  <div class="band" id="band" style="display:${S.band?"block":"none"}"></div>
+  <div class="cap ${S.band?"":"shadow"}" id="cap" style="color:${S.color};font-family:'${S.font}',sans-serif;font-weight:${FW[S.font]}"></div>
+  <div class="hint" id="hint">▶</div></div><p class="tapnote">Нажми на экран, чтобы проверить субтитры со звуком</p>`;
 }
+function chunksHTML(){return S.chunks.length?S.chunks.map((c,i)=>`<button class="chunk" data-a="edit" data-v="${i}">${esc(c.text)}</button>`).join(""):`<span class="sub">Речь в видео не найдена.</span>`}
 function vStyle(){
   shell("Субтитры",true);
-  return phone()+`
+  return phoneHTML()+`
   <div class="label">Цвет</div>
   <div class="group"><div class="swatches">${COLORS.map(([c,n])=>`<button class="sw ${S.color===c?"on":""}" style="background:${c}" title="${n}" aria-label="${n}" data-a="color" data-v="${c}"></button>`).join("")}
    <label class="sw" style="background:conic-gradient(#aaa,#ddd,#aaa);display:grid;place-items:center;overflow:hidden" title="Свой цвет"><input type="color" id="cc" value="${S.color}" style="opacity:0;width:100%;height:100%"></label></div></div>
   <div class="label">Шрифт</div>
-  <div class="group"><div class="row"><div class="grow">Шрифт субтитров</div><select id="font">${FONTS.map(([f,n])=>`<option ${S.font===f?"selected":""}>${n}</option>`).join("")}</select></div></div>
-  <div class="label">Текст (нажми на слово, чтобы поправить)</div>
-  <div class="group"><div class="chunks">${S.chunks.map((c,i)=>`<button class="chunk" data-a="edit" data-v="${i}">${esc(c)}</button>`).join("")}</div></div>
-  <div class="label">Поправить через чат</div>
+  <div class="group"><div class="row"><div class="grow">Шрифт субтитров</div><select id="font">${FONTS.map(f=>`<option ${S.font===f?"selected":""}>${f}</option>`).join("")}</select></div></div>
+  <div class="label">Текст (нажми на фразу, чтобы поправить)</div>
+  <div class="group"><div class="chunks" id="chunks">${chunksHTML()}</div></div>
+  <div class="label">Замена слов</div>
   <div class="chat" id="chat">${S.chat.map(m=>`<div class="msg ${m.r}">${esc(m.t)}</div>`).join("")}</div>
-  <form class="send" id="cf"><input type="text" id="ci" placeholder="Например: замени сидел на сидела" autocomplete="off"><button aria-label="Отправить">↑</button></form>
-  <button class="btn" data-a="render">Собрать видео</button>
-  <p class="demo" style="margin-top:12px">В демо чат понимает команду «замени … на …». С сервером здесь будет настоящий ИИ.</p>`;
+  <form class="send" id="cf"><input type="text" id="ci" placeholder="замени сидел на сидела" autocomplete="off"><button aria-label="Отправить">↑</button></form>
+  <button class="btn" data-a="toBand">Дальше</button>`;
 }
-function vDone(){
-  shell("Готово",true);
-  return phone()+`<div class="group"><div class="row"><div class="grow"><b>Ролик собран</b><div class="sub">Рендер подключится вместе с сервером. Сейчас это предпросмотр.</div></div></div></div>
-  <div class="group"><div class="row"><div class="grow">Отложено ${S.lastSaved||0} фрагм. на потом</div><a class="sub" href="#" data-a="tab" data-v="later" style="color:var(--accent)">Открыть</a></div></div>
-  <button class="btn" data-a="again">Новая ссылка</button>`;
+function vBand(){
+  shell("Полоса",true);
+  const o=(v,t,s)=>`<div class="row tap ${S.band===(v==="1")&&S.band!==null?"sel":""}" data-a="band" data-v="${v}"><div class="grow">${t}<div class="sub">${s}</div></div><div class="radio"></div></div>`;
+  return phoneHTML()+`<div class="label">Субтитры пишутся на чёрной полосе посередине экрана или без неё?</div>
+  <div class="group">${o("1","Да, с полосой посередине","Чёрная полоса между верхним и нижним видео")}${o("0","Нет, без полосы","Субтитры прямо поверх видео")}</div>
+  <button class="btn" id="rbtn" data-a="render" ${S.band===null?"disabled":""}>Собрать видео</button>`;
+}
+function vRender(){
+  shell("Сборка");
+  if(S.result){
+    return `<video class="res" src="${S.result.url}" controls playsinline></video>
+    <a class="btn" href="${S.result.url}" download="clipsyarik.${S.result.ext}" style="margin-bottom:10px">Сохранить видео</a>
+    ${navigator.canShare?`<button class="btn ghost" data-a="share">Поделиться / сохранить в «Фото»</button>`:""}
+    <button class="btn ghost" data-a="again">Новое видео</button>`;
+  }
+  return `<div class="group" style="margin-top:12px"><div class="row"><div class="grow"><b>${S.rerr?"Не получилось":"Собираю видео…"}</b><div class="sub">${S.rerr?"":"Сборка идёт в реальном времени: столько же, сколько длится видео. Не закрывай приложение и не блокируй экран."}</div></div></div>
+  ${S.rerr?`<div class="err">${esc(S.rerr)}</div>`:`<div class="prog"><i id="rpb"></i></div>`}</div>
+  ${S.rerr?`<button class="btn ghost" data-a="backband">Назад</button>`:""}`;
 }
 function vStore(){
   shell("Хранилище");
-  const types=["Все",...TYPES];
-  const list=S.store.filter(v=>S.filter==="Все"||v.type===S.filter);
-  return `<div class="group"><div class="row"><div class="grow">Тип нового видео</div><select id="uptype">${TYPES.map(t=>`<option ${S.upType===t?"selected":""}>${t}</option>`).join("")}</select></div></div>
-  <label class="btn" style="display:block;text-align:center;margin-bottom:18px;cursor:pointer">Загрузить видео<input type="file" id="up" accept="video/*" multiple hidden></label>
-  <div class="group"><div class="row"><div class="grow">Показать</div><select id="flt">${types.map(t=>`<option ${S.filter===t?"selected":""}>${t}</option>`).join("")}</select></div></div>
-  ${list.length?`<div class="grid">${list.map(v=>`<div class="tile"><video src="${v.url}" muted playsinline preload="metadata"></video><span>${esc(v.type)}</span><button class="x" data-a="del" data-v="${v.id}" aria-label="Удалить">✕</button></div>`).join("")}</div>`
-  :`<div class="empty">Пока пусто. Загрузи «залипательные» ролики: резку мыла, ковры, гонки.</div>`}`;
-}
-function vLater(){
-  shell("Отложенные");
-  return S.deferred.length?`<p class="note" style="margin:6px 16px 12px">Лучшие фрагменты, которые ты не выбрал.</p><div class="group">${S.deferred.map((c,i)=>`<div class="row"><div class="thumb" style="background:${grad(i+3)}"></div><div class="grow"><div style="font-weight:600">${esc(c.t)}</div><div class="sub">${c.d} · ${esc(c.from)}</div></div><div class="score">${c.s.toFixed(1)}</div></div>`).join("")}</div>
-  <button class="btn ghost" data-a="clearlater">Очистить список</button>`:`<div class="empty">Здесь появятся оставшиеся лучшие фрагменты после монтажа.</div>`;
+  const cnt={short:0,long:0};S.store.forEach(v=>cnt[v.len]++);
+  const list=S.store.filter(v=>v.len===S.sLen&&(S.sType==="Все"||v.type===S.sType));
+  return `<div class="seg">${LENS.map(([k,n,r])=>`<button class="${S.sLen===k?"on":""}" data-a="slen" data-v="${k}">${n} · ${r} (${cnt[k]})</button>`).join("")}</div>
+  <div class="group"><div class="row"><div class="grow">Категория</div><select id="flt">${["Все",...TYPES].map(t=>`<option ${S.sType===t?"selected":""}>${esc(t)}</option>`).join("")}</select></div></div>
+  ${list.length?`<div class="grid">${list.map(v=>`<div class="tile"><video src="${v.url}#t=0.001" muted playsinline preload="metadata"></video><span>${esc(v.type)}</span><button class="x" data-a="del" data-v="${v.id}" aria-label="Удалить">✕</button></div>`).join("")}</div>`
+   :`<div class="empty">Здесь пока пусто.</div>`}
+  <div class="label">Добавить видео</div>
+  <div class="group"><div class="row"><div class="grow">Категория новых видео</div><select id="uptype">${TYPES.map(t=>`<option ${S.upType===t?"selected":""}>${esc(t)}</option>`).join("")}</select></div></div>
+  <label class="btn" style="cursor:pointer">Загрузить видео<input type="file" id="up" accept="video/*" multiple hidden></label>
+  <p class="note" style="margin:10px 16px 0">Короткое или длинное определяется само по длине ролика. Копия хранится внутри приложения: если удалить видео из галереи, здесь оно останется. Загружай их из приложения на экране «Домой».</p>`;
 }
 
-/* ---------- субтитры: по 1–3 слова ---------- */
-function chunk(text){const w=text.trim().split(/\s+/),o=[];let i=0;const pat=[2,1,3,2,2,3,1,2];let k=0;
-  while(i<w.length){const n=Math.min(pat[k++%pat.length],w.length-i);o.push(w.slice(i,i+n).join(" "));i+=n}return o}
-let capT=null;
-function startCaps(){clearInterval(capT);let i=0;const el=()=>document.getElementById("cap");
-  const tick=()=>{const e=el();if(!e){clearInterval(capT);return}e.textContent=S.chunks[i%S.chunks.length]||"";i++};
-  tick();capT=setInterval(tick,650)}
+/* ---------- предпросмотр ---------- */
+function pvStart(){
+  const my=pvTok,cap=$("#cap"),t=$("#pvTop"),b=$("#pvBot"),hint=$("#hint");let lastText=null;
+  if(!t)return;
+  t.addEventListener("ended",()=>{b&&b.pause();hint.style.display="block"});
+  const tick=()=>{if(my!==pvTok||!cap.isConnected)return;
+    const i=chunkAt(t.currentTime);const tx=i<0?"":S.chunks[i].text;if(tx!==lastText){cap.textContent=tx;lastText=tx}
+    requestAnimationFrame(tick)};
+  tick();
+}
+function pvToggle(){
+  const t=$("#pvTop"),b=$("#pvBot"),h=$("#hint");if(!t)return;
+  if(t.paused){if(t.ended||(t.duration&&t.currentTime>=t.duration-0.05))t.currentTime=0;
+    t.play().catch(()=>{});b&&b.play().catch(()=>{});h.style.display="none"}
+  else{t.pause();b&&b.pause();h.style.display="block"}
+}
+
+/* ---------- сборка видео (canvas + запись) ---------- */
+const ready=v=>new Promise((res,rej)=>{if(v.readyState>=3)return res();v.oncanplay=()=>res();v.onerror=()=>rej(new Error("Не удалось открыть видео."))});
+function cover(g,v,x,y,w,h){
+  const vw=v.videoWidth||w,vh=v.videoHeight||h,sc=Math.max(w/vw,h/vh),dw=vw*sc,dh=vh*sc;
+  g.save();g.beginPath();g.rect(x,y,w,h);g.clip();g.drawImage(v,x+(w-dw)/2,y+(h-dh)/2,dw,dh);g.restore();
+}
+async function doRender(){
+  S.step="render";S.rerr="";S.result=null;render();
+  try{
+    if(typeof MediaRecorder==="undefined")throw new Error("Этот браузер не умеет записывать видео. Обнови iOS.");
+    const W=720,H=1280,cv=document.createElement("canvas");cv.width=W;cv.height=H;const g=cv.getContext("2d");
+    const mk=src=>{const v=document.createElement("video");v.src=src;v.setAttribute("playsinline","");v.playsInline=true;v.preload="auto";return v};
+    const tv=mk(S.top.url),bs=S.store.find(v=>v.id===S.fid),bv=bs?mk(bs.url):null;
+    if(bv){bv.muted=true;bv.loop=true}
+    await Promise.all([ready(tv),bv?ready(bv):0]);
+    await document.fonts.load(`${FW[S.font]} 40px "${S.font}"`,"Аа");
+    const AC=window.AudioContext||window.webkitAudioContext,ac=new AC();try{await ac.resume()}catch(_){}
+    const dst=ac.createMediaStreamDestination();ac.createMediaElementSource(tv).connect(dst);
+    const stream=cv.captureStream(30);dst.stream.getAudioTracks().forEach(t=>stream.addTrack(t));
+    const mime=["video/mp4;codecs=avc1.42E01E,mp4a.40.2","video/mp4","video/webm;codecs=vp9,opus","video/webm"].find(m=>MediaRecorder.isTypeSupported(m))||"";
+    const rec=new MediaRecorder(stream,mime?{mimeType:mime,videoBitsPerSecond:5000000}:{});
+    const parts=[];rec.ondataavailable=e=>{if(e.data&&e.data.size)parts.push(e.data)};
+    const stopped=new Promise(r=>rec.onstop=r);
+    const frame=()=>{
+      g.fillStyle="#000";g.fillRect(0,0,W,H);
+      cover(g,tv,0,0,W,H/2);if(bv)cover(g,bv,0,H/2,W,H/2);
+      if(S.band){g.fillStyle="#000";const bh=H*0.14;g.fillRect(0,H/2-bh/2,W,bh)}
+      const i=chunkAt(tv.currentTime);
+      if(i>=0){const tx=S.chunks[i].text.toUpperCase();let sz=W*0.09;
+        const f=()=>g.font=`${FW[S.font]} ${sz}px "${S.font}",sans-serif`;f();
+        while(g.measureText(tx).width>W*0.88&&sz>20){sz-=2;f()}
+        g.textAlign="center";g.textBaseline="middle";
+        if(!S.band){g.lineJoin="round";g.lineWidth=sz*0.16;g.strokeStyle="rgba(0,0,0,.7)";g.strokeText(tx,W/2,H/2)}
+        g.fillStyle=S.color;g.fillText(tx,W/2,H/2)}
+    };
+    tv.currentTime=0;if(bv)bv.currentTime=0;
+    rec.start(500);frame();
+    await tv.play();if(bv)await bv.play();
+    const dur=tv.duration;
+    await new Promise(res=>{let stop=false;tv.onended=()=>{stop=true;res()};
+      const loop=()=>{if(stop)return;frame();const p=$("#rpb");if(p)p.style.width=Math.round(Math.min(1,tv.currentTime/dur)*100)+"%";requestAnimationFrame(loop)};loop()});
+    frame();await new Promise(r=>setTimeout(r,300));
+    rec.stop();if(bv)bv.pause();await stopped;try{ac.close()}catch(_){}
+    const type=rec.mimeType||mime||"video/mp4";
+    const blob=new Blob(parts,{type});
+    S.result={url:URL.createObjectURL(blob),blob,type,ext:type.includes("mp4")?"mp4":"webm"};
+  }catch(e){S.rerr=e.message||String(e)}
+  if(S.step==="render")render();
+}
 
 /* ---------- действия ---------- */
-function saveDef(){try{localStorage.setItem("cy_def",JSON.stringify(S.deferred))}catch(e){}}
 document.addEventListener("click",async e=>{
   const b=e.target.closest("[data-a]");if(!b)return;
   const a=b.dataset.a,v=b.dataset.v;
-  if(a==="tab"){e.preventDefault();S.tab=v;return render()}
-  if(a==="back"){S.step=({rank:"home",ftype:"rank",fsrc:"ftype",style:"fsrc",done:"style"})[S.step]||"home";return render()}
-  if(a==="analyze"){S.url=$("#url").value.trim();if(!S.url){$("#url").focus();return}
-    S.step="work";S.prog=0;render();
-    for(let i=1;i<=STEPS.length;i++){await new Promise(r=>setTimeout(r,800));S.prog=i;if(S.step==="work")render()}
-    S.clips=MOCK.map(x=>({...x}));S.step="rank";return render()}
-  if(a==="pick"){S.picked=+v;S.step="ftype";return render()}
+  if(a==="tab"){S.tab=v;return render()}
+  if(a==="back"){S.step=({ftype:"home",fsrc:"ftype",style:"fsrc",band:"style"})[S.step]||"home";return render()}
+  if(a==="home"){S.step="home";return render()}
+  if(a==="resume"){S.step="ftype";return render()}
+  if(a==="flen"){S.flen=v;S.fid=null;return render()}
   if(a==="ftype"){S.ftype=v;return render()}
-  if(a==="toSrc"){S.fsrc={kind:"storage",id:null};S.step="fsrc";return render()}
-  if(a==="smode"){S.srcMode=v;S.fsrc=v==="storage"?{kind:"storage",id:null}:{kind:"link",url:""};return render()}
-  if(a==="fpick"){S.fsrc={kind:"storage",id:v};return render()}
-  if(a==="toStyle"){if(S.srcMode==="link")S.fsrc={kind:"link",url:$("#flink").value.trim()};
-    S.chunks=chunk(SAMPLE);S.step="style";return render()}
-  if(a==="color"){S.color=v;return render()}
-  if(a==="edit"){return editChunk(+v)}
-  if(a==="render"){const rest=S.clips.filter((_,i)=>i!==S.picked).slice(0,5);
-    S.deferred=[...rest.map(c=>({...c,from:"из «"+(S.url.replace(/^https?:\/\//,"").slice(0,24)||"ссылка")+"»"})),...S.deferred];
-    S.lastSaved=rest.length;saveDef();S.step="done";return render()}
-  if(a==="again"){S.step="home";S.url="";S.picked=null;S.ftype=null;return render()}
+  if(a==="toSrc"){S.step="fsrc";return render()}
+  if(a==="fpick"){S.fid=v;return render()}
+  if(a==="toStyle"){S.step="style";return render()}
+  if(a==="toBand"){S.step="band";return render()}
+  if(a==="pv")return pvToggle();
+  if(a==="color"){S.color=v;document.querySelectorAll(".sw[data-a=color]").forEach(x=>x.classList.toggle("on",x.dataset.v===v));$("#cap").style.color=v;return}
+  if(a==="band"){S.band=v==="1";$("#band").style.display=S.band?"block":"none";$("#cap").classList.toggle("shadow",!S.band);
+    document.querySelectorAll(".row[data-a=band]").forEach(x=>x.classList.toggle("sel",x.dataset.v===v));$("#rbtn").disabled=false;return}
+  if(a==="edit")return editChunk(+v);
+  if(a==="render")return doRender();
+  if(a==="backband"){S.step="band";return render()}
+  if(a==="again"){S.step="home";S.top=null;S.chunks=[];S.words=[];S.fid=null;S.ftype=null;S.band=null;S.result=null;return render()}
+  if(a==="share"){try{const f=new File([S.result.blob],"clipsyarik."+S.result.ext,{type:S.result.type});
+    if(navigator.canShare({files:[f]}))await navigator.share({files:[f]})}catch(_){}return}
+  if(a==="slen"){S.sLen=v;return render()}
   if(a==="del"){e.stopPropagation();await DB.del(v);await loadStore();return render()}
-  if(a==="clearlater"){S.deferred=[];saveDef();return render()}
 });
-/* правка слова: встроенное поле вместо prompt() */
 function editChunk(i){
   const btn=document.querySelector(`.chunk[data-v="${i}"]`);if(!btn)return;
-  const inp=document.createElement("input");inp.type="text";inp.value=S.chunks[i];inp.className="chunk";inp.style.width=Math.max(90,btn.offsetWidth+24)+"px";
+  const t=$("#pvTop");if(t){t.pause();const b=$("#pvBot");b&&b.pause();const h=$("#hint");if(h)h.style.display="block";t.currentTime=S.chunks[i].s+0.01}
+  const inp=document.createElement("input");inp.type="text";inp.value=S.chunks[i].text;inp.className="chunk";inp.style.width=Math.max(110,btn.offsetWidth+30)+"px";
   btn.replaceWith(inp);inp.focus();inp.select();
-  const done=()=>{const t=inp.value.trim();if(t)S.chunks[i]=t;render()};
+  const done=()=>{const tx=inp.value.trim();if(tx)S.chunks[i].text=tx;$("#chunks").innerHTML=chunksHTML()};
   inp.addEventListener("blur",done);inp.addEventListener("keydown",k=>{if(k.key==="Enter")inp.blur()});
 }
 document.addEventListener("change",async e=>{
   const t=e.target;
-  if(t.id==="font"){S.font=t.value;render()}
-  if(t.id==="cc"){S.color=t.value;render()}
+  if(t.id==="font"){S.font=t.value;const c=$("#cap");c.style.fontFamily=`'${S.font}',sans-serif`;c.style.fontWeight=FW[S.font]}
+  if(t.id==="cc"){S.color=t.value;$("#cap").style.color=t.value;document.querySelectorAll(".sw[data-a=color]").forEach(x=>x.classList.remove("on"))}
   if(t.id==="uptype")S.upType=t.value;
-  if(t.id==="flt"){S.filter=t.value;render()}
-  if(t.id==="up"){for(const f of t.files){await DB.put({id:"v"+Date.now()+Math.random().toString(36).slice(2,6),name:f.name,type:S.upType,blob:f})}
-    await loadStore();render()}
+  if(t.id==="flt"){S.sType=t.value;render()}
+  if(t.id==="up"&&t.files.length){const fs=[...t.files];t.value="";await addFiles(fs,S.upType);render()}
+  if(t.id==="up2"&&t.files.length){const fs=[...t.files];t.value="";await addFiles(fs,S.ftype);
+    const nv=S.store.filter(v=>v.type===S.ftype).pop();if(nv){S.flen=nv.len;S.fid=nv.id}render()}
+  if(t.id==="topf"&&t.files.length){
+    const f=t.files[0];t.value="";
+    const dur=await probe(f);
+    if(!dur){alert("Не удалось открыть это видео.");return}
+    if(dur>600){alert("Видео длиннее 10 минут. Сначала обрежь его, чтобы распознавание не зависло.");return}
+    S.top={name:f.name,url:URL.createObjectURL(f),dur};S.fid=null;S.band=null;S.result=null;
+    S.step="work";S.tab="make";render();paintJob();
+    try{await transcribe(f);S.flen="short";S.ftype=null;S.step="ftype";render()}
+    catch(err){setJob({err:err.message||String(err)})}
+  }
 });
 document.addEventListener("submit",e=>{
   if(e.target.id!=="cf")return;e.preventDefault();
-  const i=$("#ci"),q=i.value.trim();if(!q)return;
+  const i=$("#ci"),q=i.value.trim();if(!q)return;i.value="";
   S.chat.push({r:"me",t:q});
   const m=q.match(/(?:замени|исправь)\s+[«"]?(.+?)[»"]?\s+на\s+[«"]?(.+?)[»"]?\s*$/i);
-  if(m){const from=m[1].toLowerCase(),to=m[2];let n=0;
-    S.chunks=S.chunks.map(c=>{const r=c.toLowerCase().split(from).join("\u0000");if(r.includes("\u0000")){n++;return c.replace(new RegExp(from.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"),"gi"),to)}return c});
-    S.chat.push({r:"ai",t:n?`Готово, исправил: ${n} шт.`:`Не нашёл «${m[1]}» в тексте.`})}
-  else S.chat.push({r:"ai",t:"В демо я понимаю только «замени … на …». С подключённым сервером пойму любую просьбу."});
-  render();const c=$("#chat");if(c)c.scrollTop=c.scrollHeight;
+  let ans;
+  if(m){const re=new RegExp(m[1].replace(/[.*+?^${}()|[\]\\]/g,"\\$&"),"gi");let n=0;
+    S.chunks.forEach(c=>{if(re.test(c.text)){re.lastIndex=0;c.text=c.text.replace(re,m[2]);n++}re.lastIndex=0});
+    ans=n?`Готово, исправил фраз: ${n}.`:`Не нашёл «${m[1]}» в тексте.`;$("#chunks").innerHTML=chunksHTML()}
+  else ans="Я понимаю только команду «замени … на …».";
+  S.chat.push({r:"ai",t:ans});
+  $("#chat").innerHTML=S.chat.map(x=>`<div class="msg ${x.r}">${esc(x.t)}</div>`).join("");
+  const c=$("#chat");c.scrollTop=c.scrollHeight;
 });
-document.addEventListener("input",e=>{if(e.target.id==="url")S.url=e.target.value});
 
+try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(_){}
 DB.open().then(loadStore).then(render);
 </script>
 </body>
